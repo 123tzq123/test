@@ -1,0 +1,25 @@
+package com.trade.config;
+
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Data
+@Configuration
+@ConfigurationProperties(prefix = "aliyun.oss")
+public class OSSConfig {
+    private String endpoint;
+    private String accessKeyId;
+    private String accessKeySecret;
+    private String bucketName;
+
+//    @Bean
+//    public OSS ossClient(){
+//        //正确传参方式
+//        return OSSClientBuilder.create()
+//                .build(endpoint, accessKeyId, accessKeySecret);
+//    }
+}

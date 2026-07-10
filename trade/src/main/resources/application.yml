@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/idle_trade?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root      #替换成你的mysql用户名
+    password: 109625      #替换成你的mysql密码
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    password:
+    database: 0
+  servlet:
+    multipart:
+      max-file-size: 10MB
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+jwt:
+  secret: TradeSecretKey123456789abcdefghijk
+  expiration: 86400000
+aliyun:
+  oss:
+    endpoint: oss-cn-hangzhou.aliyuncs.com
+    accessKeyId:
+    accessKeySecret:
+    bucketName: idle-trade-images
