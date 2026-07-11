@@ -19,8 +19,10 @@
 //}
 package com.trade.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trade.constant.AttributeConst;
 import com.trade.util.JwtUtil;
+import com.trade.vo.ResultVO;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import javax.annotation.Resource;
@@ -35,25 +37,25 @@ public class JwtConfig implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //1. 获取请求头里面token
-        String token = request.getHeader("token");
-        //放行登录、注册接口
-        String path = request.getRequestURI();
-        if(path.contains("/user/login") || path.contains("/user/register")){
+        //JWT拦截器preHandle方法最前面添加
+        if("OPTIONS".equalsIgnoreCase(request.getMethod())){
             return true;
         }
-        if(token == null || token.isEmpty()){
+        String token = request.getHeader("token");
+        //进入这里代表不是放行接口，必须携带token
+        if (token == null || token.isEmpty()) {
             response.setStatus(401);
             return false;
         }
         try {
-            //====核心改动：只调用工具类的parseToken，不用自己写jjwt底层解析代码====
             Long userId = jwtUtil.parseToken(token);
-            //把userId放到请求域，Controller里面可以获取登录用户id
-            request.setAttribute(AttributeConst.LOGIN_USER_ID,userId);
-        }catch (Exception e){
-            //token过期或者token错误，返回401未登录
+            request.setAttribute(AttributeConst.LOGIN_USER_ID, userId);
+        } catch (Exception e) {
+            response.setContentType("application/json;charset=utf-8");
             response.setStatus(401);
+            ResultVO<Void> result = ResultVO.fail(401,"登录失效，请重新登录");
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.writeValue(response.getWriter(), result);
             return false;
         }
         return true;

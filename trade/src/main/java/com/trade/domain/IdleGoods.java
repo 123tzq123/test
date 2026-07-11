@@ -15,7 +15,7 @@ public class IdleGoods {
     private Long categoryId;
     private String title;
     private String content;
-    private BigDecimal price;
+    private BigDecimal price = new BigDecimal(0);
     private BigDecimal originalPrice;
     private String goodsImg;
     private Integer status;

@@ -14,10 +14,10 @@ public class ResultVO<T> {
         vo.setData(data);
         return vo;
     }
-    public static <T> ResultVO<T> fail(String msg){
-        ResultVO<T> vo = new ResultVO<>();
-        vo.setCode(500);
-        vo.setMsg(msg);
-        return vo;
+    public static <T> ResultVO<T> fail(Integer code, String msg){
+        ResultVO<T> resultVO = new ResultVO<>();
+        resultVO.setCode(code);
+        resultVO.setMsg(msg);
+        return resultVO;
     }
 }

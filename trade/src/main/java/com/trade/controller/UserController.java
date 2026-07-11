@@ -1,14 +1,12 @@
 package com.trade.controller;
 
+import com.trade.constant.AttributeConst;
 import com.trade.dto.UserLoginDTO;
 import com.trade.service.UserService;
 import com.trade.vo.ResultVO;
 import com.trade.vo.UserVO;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -30,8 +28,8 @@ public class UserController {
         return ResultVO.success(vo);
     }
     @PostMapping("/updateAvatar")
-    public ResultVO<String> updateAvatar(MultipartFile file, HttpServletRequest request){
-        Long userId = (Long) request.getAttribute("userId");
+    public ResultVO<String> updateAvatar(@RequestParam("file") MultipartFile file, HttpServletRequest request){
+        Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
         String url = userService.updateAvatar(userId,file);
         return ResultVO.success(url);
     }
