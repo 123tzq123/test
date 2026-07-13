@@ -3,7 +3,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.trade.constant.AttributeConst;
 import com.trade.dto.GoodsPublishDTO;
 import com.trade.domain.IdleGoods;
+import com.trade.dto.GoodsUpdateDTO;
 import com.trade.service.GoodsService;
+import com.trade.util.JwtUtil;
 import com.trade.vo.GoodsVO;
 import com.trade.vo.ResultVO;
 import org.springframework.validation.annotation.Validated;
@@ -73,4 +75,27 @@ public class GoodsController {
         goodsService.deleteGoods(goodsId,userId);
         return ResultVO.success(null);
     }
+
+    /**
+     * 根据商品id获取商品信息，编辑页面回显
+     * @param goodsId 商品id
+     * @return IdleGoods原始数据
+     */
+    @GetMapping("/getById/{id}")
+    public ResultVO<IdleGoods> getGoodsById(@PathVariable("id") Long goodsId) {
+        IdleGoods idleGoods = goodsService.getGoodsById(goodsId);
+        return ResultVO.success(idleGoods);
+    }
+
+    /**
+     * 修改商品信息
+     */
+    @PutMapping("/update")
+    public ResultVO<Void> updateGoods(@Validated @RequestBody GoodsUpdateDTO dto, HttpServletRequest request) {
+        Long loginUserId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
+        goodsService.updateGoods(dto, loginUserId);
+        return ResultVO.success(null);
+    }
+
+
 }

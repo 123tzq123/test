@@ -3,13 +3,16 @@
   <div class="detail" v-if="goods">
     <el-row :gutter="40">
       <el-col :span="10">
-        <img v-if="goods?.imgUrl" :src="goods.imgUrl" class="img" />
+        <!--遍历imgList，展示所有图片-->
+        <div class="img-container">
+          <img v-for="(img, idx) in goods.imgList" :key="idx" :src="img" class="img-item" />
+        </div>
       </el-col>
       <el-col :span="14">
-        <h2>{{ goods?.title }}</h2>
-        <p class="price">售价：{{ goods?.price }}</p>
-        <p>卖家：{{ goods?.sellerName }}</p>
-        <p>商品描述：{{ goods?.description }}</p>
+        <h2>{{ goods.title }}</h2>
+        <p class="price">售价：{{ goods.price }}</p>
+        <p>卖家：{{ goods.sellerName }}</p>
+        <p>商品描述：{{ goods.content }}</p>
       </el-col>
     </el-row>
   </div>
@@ -24,6 +27,7 @@ import NavBar from '../../components/NavBar.vue'
 
 const route = useRoute()
 const goods = ref<GoodsItem | undefined>()
+
 const getDetail = async () => {
   const goodsId = Number(route.params.goodsId)
   const res = await getGoodsDetailApi(goodsId)
@@ -39,16 +43,20 @@ onMounted(() => {
 
 <style scoped>
 .detail {
-  padding:30px 40px;
+  padding: 30px;
 }
-.img {
-  width:100%;
-  height:350px;
-  object-fit:cover;
+.img-container{
+  display: flex;
+  flex-wrap: wrap;
+  gap:8px;
+}
+.img-item {
+  width:170px;
+  height:170px;
+  object-fit: cover;
 }
 .price {
-  font-size:22px;
-  color:red;
-  margin-top:20px;
+  font-size: 20px;
+  color: red;
 }
 </style>

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.trade.domain.IdleGoods;
 import com.trade.dto.GoodsPublishDTO;
+import com.trade.dto.GoodsUpdateDTO;
 import com.trade.exception.GlobalException;
 import com.trade.mapper.IdleGoodsMapper;
 import com.trade.service.GoodsService;
@@ -24,14 +25,15 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
     @Override
     public void publishGoods(GoodsPublishDTO dto, Long userId) {
         IdleGoods goods = new IdleGoods();
+        BeanUtils.copyProperties(dto, goods);
         goods.setUserId(userId);
-        goods.setCategoryId(dto.getCategoryId());
-        goods.setTitle(dto.getTitle());
-        goods.setContent(dto.getContent());
-        goods.setPrice(dto.getPrice());
-        goods.setOriginalPrice(dto.getOriginalPrice());
-        goods.setGoodsImg(dto.getGoodsImg());
-        goods.setStatus(0); //0待审核
+//        goods.setCategoryId(dto.getCategoryId());
+//        goods.setTitle(dto.getTitle());
+//        goods.setContent(dto.getContent());
+//        goods.setPrice(dto.getPrice());
+//        goods.setOriginalPrice(dto.getOriginalPrice());
+//        goods.setGoodsImg(dto.getGoodsImg());
+        goods.setStatus(1); //0待审核
         this.save(goods);
     }
 
@@ -150,5 +152,21 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
         }
         //物理删除，数据库中数据被真实删除
         this.removeById(goodsId);
+    }
+
+    @Override
+    public IdleGoods getGoodsById(Long goodsId) {
+        return this.getById(goodsId);
+    }
+
+    @Override
+    public void updateGoods(GoodsUpdateDTO dto, Long loginUserId) {
+        IdleGoods goods = this.getById(dto.getId());
+        //权限校验：只能修改自己发布的商品
+        if(!goods.getUserId().equals(loginUserId)){
+            throw new GlobalException(500,"你无权修改别人的商品");
+        }
+        BeanUtils.copyProperties(dto,goods);
+        this.updateById(goods);
     }
 }

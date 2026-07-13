@@ -5,7 +5,7 @@
     <el-row :gutter="20">
       <el-col :span="6" v-for="item in goodsList" :key="item.id">
         <el-card shadow="hover">
-          <img v-if="item.imgUrl" :src="item.imgUrl" class="goods-img" />
+          <img v-if="item.coverImg" :src="item.coverImg" class="goods-img" />
           <h3>{{ item.title }}</h3>
           <p>价格：{{ item.price ?? 0 }}元</p>
           <el-button @click="router.push('/goods/' + item.id)">查看详情</el-button>

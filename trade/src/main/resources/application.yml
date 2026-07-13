@@ -24,7 +24,7 @@ jwt:
   expiration: 86400000
 aliyun:
   oss:
-    endpoint: oss-cn-hangzhou.aliyuncs.com
-    accessKeyId:
-    accessKeySecret:
-    bucketName: idle-trade-images
+    endpoint: oss-cn-beijing.aliyuncs.com
+    accessKeyId: ${ALIYUN_ACCESS_KEY_ID}
+    accessKeySecret: ${ALIYUN_ACCESS_KEY_SECRET}
+    bucketName: idle-goods-image

@@ -11,6 +11,8 @@
         </el-form-item>
         <el-button type="primary" style="width:100%" @click="handleLogin">登录</el-button>
       </el-form>
+      <!-- 把注册提示放到卡片里面，卡片内部最后 -->
+      <div class="tip">还没有账号？<span @click="goRegister">立即注册</span></div>
     </el-card>
   </div>
 </template>
@@ -22,6 +24,7 @@ import Cookies from 'js-cookie'
 import { loginApi } from '../../api/user'
 import { ElMessage, ElForm } from 'element-plus'
 
+//获取路由实例
 const router = useRouter()
 const loginRef = ref<InstanceType<typeof ElForm>>()
 const loginForm = ref({
@@ -29,7 +32,12 @@ const loginForm = ref({
   password: ''
 })
 
+//登录方法
 const handleLogin = async () => {
+  if(!loginForm.value.username || !loginForm.value.password){
+    ElMessage.warning("用户名和密码不能为空")
+    return
+  }
   const res = await loginApi(loginForm.value)
   if (res.code === 200) {
     Cookies.set('token', res.data.token)
@@ -38,6 +46,11 @@ const handleLogin = async () => {
   } else {
     ElMessage.error(res.msg)
   }
+}
+
+//跳转到注册页面
+const goRegister = () => {
+  router.push('/register')
 }
 </script>
 
@@ -48,5 +61,13 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   background: #f5f5f5;
+}
+.tip {
+  margin-top:18px;
+  text-align:center;
+}
+.tip span {
+  color:#409eff;
+  cursor: pointer;
 }
 </style>

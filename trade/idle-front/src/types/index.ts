@@ -3,12 +3,14 @@ export interface GoodsItem {
   id: number
   title: string
   price: number | null
-  imgUrl: string | null
-  description: string | null
+  content: string | null
   categoryId: number
   sellerName: string | null
   userId: number
   status: number
+  goodsImg: string | null
+  imgList: string[] //所有图片数组
+  coverImg: string | null //封面图片（第一张）
 }
 
 //分页通用结构 Mybatis‑Plus返回格式
@@ -30,9 +32,9 @@ export interface LoginData {
 export interface GoodsPublishDTO {
   title: string
   price: number
-  description: string
+  content: string
   categoryId: number
-  imgUrl: string
+  goodsImg: string
 }
 
 //后端统一返回结果
@@ -40,4 +42,18 @@ export interface Result<T = any> {
   code: number
   msg: string
   data: T
+}
+
+//用户登录接口
+export interface UserLoginDTO {
+  username: string
+  password: string
+}
+
+export interface GoodsUpdateDTO {
+  id: number
+  title: string
+  price: number | null
+  content: string
+  goodsImg: string  //多张图片逗号分隔
 }

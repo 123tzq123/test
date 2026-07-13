@@ -26,26 +26,49 @@
 
 package com.trade.util;
 
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.UUID;
 
 @Component
 public class OSSUtil {
-    //本地保存图片，项目根目录下upload文件夹
-    public String uploadFile(MultipartFile file) throws Exception {
-        String projectPath = System.getProperty("user.dir");
-        File uploadDir = new File(projectPath + File.separator + "upload");
-        if(!uploadDir.exists()){
-            uploadDir.mkdirs();
-        }
+
+    @Value("${aliyun.oss.endpoint}")
+    private String endpoint;
+    @Value("${aliyun.oss.accessKeyId}")
+    private String accessKeyId;
+    @Value("${aliyun.oss.accessKeySecret}")
+    private String accessKeySecret;
+    @Value("${aliyun.oss.bucketName}")
+    private String bucketName;
+
+    /**
+     * 上传文件到阿里云OSS
+     * @param file 前端传过来的图片
+     * @return 返回图片完整访问URL
+     */
+    public String uploadFile(MultipartFile file) throws IOException {
+        // 创建OSS客户端实例
+        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+
+        // 获取文件后缀
         String suffix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
-        String fileName = UUID.randomUUID().toString().replace("-", "") + suffix;
-        File destFile = new File(uploadDir, fileName);
-        file.transferTo(destFile);
-        //返回本地访问路径，正式项目部署时替换成你的服务器公网地址
-        return "/upload/" + fileName;
+        // 使用UUID防止文件名重复
+        String fileName = UUID.randomUUID().toString().replace("-","") + suffix;
+        // 放到image文件夹，方便后期管理
+        String objectName = "image/" + fileName;
+
+        //上传文件
+        ossClient.putObject(bucketName, objectName, file.getInputStream());
+        //关闭客户端
+        ossClient.shutdown();
+
+        //返回外网访问地址
+        return "https://"+bucketName+"."+endpoint+"/"+objectName;
     }
 }

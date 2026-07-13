@@ -24,7 +24,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/goods/list",
                         "/goods/detail",
                         "/message/list/**",
-                        "/upload/**"
+                        "/upload/**",
+                        "/file/upload"
                 );
     }
 
