@@ -23,3 +23,21 @@ export function registerApi(data: UserLoginDTO): Promise<Result<null>> {
     data
   })
 }
+
+// ============下面是新增的接口============
+//获取当前登录用户信息
+export function getUserInfoApi() {
+  return request({
+    method: 'get',
+    url: '/user/getInfo'
+  })
+}
+
+//更新昵称和头像
+export function updateUserInfoApi(data: { nickname: string; avatar: string }) {
+  return request({
+    method: 'put',
+    url: '/user/updateInfo',
+    data
+  })
+}

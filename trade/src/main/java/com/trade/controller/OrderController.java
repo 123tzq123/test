@@ -7,11 +7,8 @@ import com.trade.service.OrderService;
 import com.trade.vo.OrderVO;
 import com.trade.vo.ResultVO;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
@@ -28,13 +25,13 @@ public class OrderController {
         return ResultVO.success(null);
     }
     @PostMapping("/cancel/{orderId}")
-    public ResultVO<Void> cancel(Long orderId, HttpServletRequest request){
+    public ResultVO<Void> cancel(@PathVariable("orderId") Long orderId, HttpServletRequest request){
         Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
         orderService.cancelOrder(orderId,userId);
         return ResultVO.success(null);
     }
     @PostMapping("/finish/{orderId}")
-    public ResultVO<Void> finish(Long orderId, HttpServletRequest request){
+    public ResultVO<Void> finish(@PathVariable("orderId") Long orderId, HttpServletRequest request){
         Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
         orderService.finishOrder(orderId,userId);
         return ResultVO.success(null);
@@ -43,6 +40,12 @@ public class OrderController {
     public ResultVO<Page<OrderVO>> myOrder(Integer pageNum, Integer pageSize, HttpServletRequest request){
         Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
         Page<OrderVO> page = orderService.getMyOrder(userId,pageNum,pageSize);
+        return ResultVO.success(page);
+    }
+    @GetMapping("/seller")
+    public ResultVO<Page<OrderVO>> getSellerOrder(Integer pageNum,Integer pageSize,HttpServletRequest request){
+        Long sellerId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
+        Page<OrderVO> page = orderService.getSellerOrder(sellerId,pageNum,pageSize);
         return ResultVO.success(page);
     }
 }

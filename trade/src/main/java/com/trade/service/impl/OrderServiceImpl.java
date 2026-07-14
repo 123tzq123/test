@@ -12,11 +12,13 @@ import com.trade.mapper.IdleGoodsMapper;
 import com.trade.mapper.SysUserMapper;
 import com.trade.mapper.TradeOrderMapper;
 import com.trade.service.OrderService;
+import com.trade.util.RedisUtil;
 import com.trade.vo.OrderVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +27,8 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
     private IdleGoodsMapper goodsMapper;
     @Resource
     private SysUserMapper userMapper;
+    @Resource
+    private RedisUtil redisUtil;
 
     @Override
     @Transactional
@@ -57,6 +61,9 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
         order.setPrice(goods.getPrice());
         order.setStatus(0);
         this.save(order);
+        // 下单存入Redis，不设置过期时间，value存入创建时间的毫秒值
+        String orderKey = "order:expire:" + order.getId();
+        redisUtil.set(orderKey, System.currentTimeMillis());
     }
 
     @Override
@@ -71,6 +78,9 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
         }
         order.setStatus(2);
         this.updateById(order);
+        //移除redis里面的过期key
+        String key = "order:expire:" + orderId;
+        redisUtil.del(key);
     }
 
     @Override
@@ -85,6 +95,9 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
         }
         order.setStatus(1);
         this.updateById(order);
+        //清除Redis
+        String key = "order:expire:" + orderId;
+        redisUtil.del(key);
         //修改商品状态为已售出
         IdleGoods goods = new IdleGoods();
         goods.setId(order.getGoodsId());
@@ -97,6 +110,35 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
         Page<TradeOrder> page = new Page<>(pageNum,pageSize);
         LambdaQueryWrapper<TradeOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(TradeOrder::getBuyerId,userId);
+        Page<TradeOrder> orderPage = this.page(page,wrapper);
+        Page<OrderVO> voPage = new Page<>();
+        voPage.setPages(orderPage.getPages());
+        voPage.setTotal(orderPage.getTotal());
+        voPage.setCurrent(orderPage.getCurrent());
+        voPage.setSize(orderPage.getSize());
+        voPage.setRecords(orderPage.getRecords().stream().map(item->{
+            OrderVO vo = new OrderVO();
+            vo.setId(item.getId());
+            vo.setOrderNo(item.getOrderNo());
+            vo.setGoodsId(item.getGoodsId());
+            vo.setBuyerId(item.getBuyerId());
+            vo.setSellerId(item.getSellerId());
+            vo.setPrice(item.getPrice());
+            vo.setStatus(item.getStatus());
+            vo.setCreateTime(item.getCreateTime());
+            IdleGoods goods = goodsMapper.selectById(item.getGoodsId());
+            vo.setGoodsTitle(goods.getTitle());
+            vo.setGoodsImg(goods.getGoodsImg());
+            return vo;
+        }).collect(Collectors.toList()));
+        return voPage;
+    }
+    @Override
+    public Page<OrderVO> getSellerOrder(Long sellerId, Integer pageNum, Integer pageSize) {
+        Page<TradeOrder> page = new Page<>(pageNum, pageSize);
+        LambdaQueryWrapper<TradeOrder> wrapper = new LambdaQueryWrapper<>();
+        //查询sellerId等于当前登录用户id的订单
+        wrapper.eq(TradeOrder::getSellerId, sellerId);
         Page<TradeOrder> orderPage = this.page(page,wrapper);
         Page<OrderVO> voPage = new Page<>();
         voPage.setPages(orderPage.getPages());

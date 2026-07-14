@@ -61,4 +61,18 @@ public class RedisUtil {
     public RedisTemplate<String, Object> getRedisTemplate() {
         return redisTemplate;
     }
+    //存入数据并设置过期时间
+    public void setEx(String key, Object value, long time, TimeUnit unit) {
+        redisTemplate.opsForValue().set(key, value, time, unit);
+    }
+
+    //普通存入数据
+    public void set(String key, Object value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
+
+    //删除key
+    public void del(String key) {
+        redisTemplate.delete(key);
+    }
 }

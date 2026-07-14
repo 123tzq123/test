@@ -19,7 +19,7 @@ public class IdleGoods {
     private BigDecimal originalPrice;
     private String goodsImg;
     private Integer status;
-    private Integer viewCount;
+    private Integer viewCount; //浏览量
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

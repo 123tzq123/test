@@ -1,5 +1,7 @@
 package com.trade.dto;
 import lombok.Data;
+
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -15,6 +17,7 @@ public class GoodsUpdateDTO {
     private String content;
 
     @NotNull(message = "价格不能为空")
+    @Min(value = 0, message = "价格不能小于0")
     private BigDecimal price;
 
     //多张图片url，逗号拼接

@@ -57,3 +57,19 @@ export interface GoodsUpdateDTO {
   content: string
   goodsImg: string  //多张图片逗号分隔
 }
+
+export interface MessageItem {
+  id: number
+  goodsId: number
+  fromUserId: number
+  toUserId: number
+  content: string
+  createTime: string
+}
+
+export interface SysUser {
+  id: number
+  username: string
+  nickname: string
+  avatar: string
+}

@@ -1,7 +1,6 @@
 package com.trade.domain;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.alibaba.fastjson2.annotation.JSONField;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -12,6 +11,10 @@ public class GoodsMessage {
     private Long id;
     private Long goodsId;
     private Long fromUserId;
+    private Long toUserId;
     private String content;
+
+    @TableField(fill = FieldFill.INSERT)
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 }

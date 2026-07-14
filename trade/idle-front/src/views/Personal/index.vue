@@ -2,6 +2,8 @@
   <NavBar></NavBar>
   <div style="padding:30px 40px">
     <h2>我的发布</h2>
+    <!--新增我的订单按钮-->
+    <el-button type="primary" style="margin-bottom:15px" @click="$router.push('/personal/order')">我的订单</el-button>
     <el-table :data="goodsList" border>
       <el-table-column label="标题" prop="title"></el-table-column>
       <el-table-column label="价格">
@@ -13,6 +15,7 @@
         <template #default="scope">
           <span v-if="scope.row.status === 1">已上架</span>
           <span v-if="scope.row.status === 0">已下架</span>
+          <span v-if="scope.row.status === 3">已售出</span>
         </template>
       </el-table-column>
       <el-table-column label="操作">
@@ -68,6 +71,7 @@
 import { ref,onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete,Plus } from '@element-plus/icons-vue'
+import Cookies from 'js-cookie'
 import NavBar from '../../components/NavBar.vue'
 import { getMyGoodsApi,offSaleApi,onSaleApi,deleteGoodsApi,getGoodsByIdApi,updateGoodsApi,uploadImgApi } from '../../api/goods'
 import { GoodsItem, GoodsUpdateDTO } from '../../types'
@@ -76,6 +80,10 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const goodsList = ref<GoodsItem[]>([])
 const editDialogVisible = ref(false)
+//修改成下面其中一套即可
+let temp = Number(Cookies.get("userId") ?? 0)
+const loginUserId = isNaN(temp) ? 0 : temp
+
 //编辑表单
 const editForm = ref<GoodsUpdateDTO>({
   id:0,

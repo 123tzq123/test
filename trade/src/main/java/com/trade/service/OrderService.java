@@ -11,4 +11,6 @@ public interface OrderService extends IService<TradeOrder> {
     void cancelOrder(Long orderId, Long userId);
     void finishOrder(Long orderId, Long userId);
     Page<OrderVO> getMyOrder(Long userId,Integer pageNum,Integer pageSize);
+    //卖家查看自己商品被别人购买的订单
+    Page<OrderVO> getSellerOrder(Long sellerId,Integer pageNum,Integer pageSize);
 }

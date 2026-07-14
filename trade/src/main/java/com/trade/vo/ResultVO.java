@@ -14,9 +14,18 @@ public class ResultVO<T> {
         vo.setData(data);
         return vo;
     }
-    public static <T> ResultVO<T> fail(Integer code, String msg){
+    //自定义错误码+消息
+    public static <T> ResultVO<T> fail(Integer code, String msg) {
         ResultVO<T> resultVO = new ResultVO<>();
         resultVO.setCode(code);
+        resultVO.setMsg(msg);
+        return resultVO;
+    }
+
+    //默认500错误码
+    public static <T> ResultVO<T> fail(String msg) {
+        ResultVO<T> resultVO = new ResultVO<>();
+        resultVO.setCode(500);
         resultVO.setMsg(msg);
         return resultVO;
     }

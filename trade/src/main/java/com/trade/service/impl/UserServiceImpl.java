@@ -14,6 +14,7 @@ import com.trade.vo.UserVO;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
+import java.io.IOException;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements UserService {
@@ -34,15 +35,22 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         wrapper.eq(SysUser::getUsername, dto.getUsername());
         SysUser one = this.getOne(wrapper);
         if (one != null) {
-            throw new GlobalException(500, "账号已存在");
+            throw new GlobalException("账号已存在");
         }
         SysUser user = new SysUser();
         user.setUsername(dto.getUsername());
-        //使用我们自己的加密方法
         user.setPassword(passwordUtil.encrypt(dto.getPassword()));
         user.setRole("user");
         user.setStatus(1);
+        //先插入数据库，此时id自动生成
         this.save(user);
+
+        //设置默认昵称和默认头像
+        String defaultAvatar = "https://idle-goods-image.oss-cn-beijing.aliyuncs.com/image/db60d339f30644c7be92be00826ed038.jpg";
+        user.setNickname("闲置用户");
+        user.setAvatar(defaultAvatar);
+        //更新数据库
+        this.updateById(user);
     }
 
     @Override
@@ -72,15 +80,32 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     }
 
     @Override
-    public String updateAvatar(Long userId, MultipartFile file) {
-        try {
-            String url = ossUtil.uploadFile(file);
-            SysUser user = this.getById(userId);
-            user.setAvatar(url);
-            this.updateById(user);
-            return url;
-        } catch (Exception e) {
-            throw new GlobalException(500, "头像上传失败");
+    public SysUser getUserInfo(Long userId) {
+        SysUser user = this.getById(userId);
+        if(user == null){
+            throw new GlobalException("用户不存在");
         }
+        //密码不返回前端
+        user.setPassword(null);
+        return user;
+    }
+
+    @Override
+    public void updateUserInfo(Long userId, String nickname, String avatar) {
+        SysUser user = new SysUser();
+        user.setId(userId);
+        user.setNickname(nickname);
+        user.setAvatar(avatar);
+        this.updateById(user);
+    }
+
+    @Override
+    public String updateAvatar(Long userId, MultipartFile file) throws IOException {
+        String url = ossUtil.uploadFile(file);
+        SysUser user = new SysUser();
+        user.setId(userId);
+        user.setAvatar(url);
+        this.updateById(user);
+        return url;
     }
 }

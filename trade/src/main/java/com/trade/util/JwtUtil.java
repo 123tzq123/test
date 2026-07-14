@@ -14,7 +14,7 @@ public class JwtUtil {
     //过期时间 1天
     private static final long EXPIRATION = 24 * 60 * 60 * 1000L;
 
-    private SecretKey getSecretKey() {
+    private static SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
     }
 
@@ -35,7 +35,7 @@ public class JwtUtil {
     /**
      * 解析token获取用户id
      */
-    public Long parseToken(String token) {
+    public static Long parseToken(String token) {
         Jws<Claims> jws = Jwts.parserBuilder()
                 .setSigningKey(getSecretKey())
                 .build()

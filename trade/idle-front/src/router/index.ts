@@ -38,6 +38,31 @@ const routes: RouteRecordRaw[] = [
     name: 'Personal',
     component: () => import('../views/Personal/index.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+  path: '/personal/order',
+  name: 'MyOrder',
+  component: () => import('../views/Personal/Order.vue'),
+  meta: { requiresAuth: true }
+  },
+  {
+  path:'/personal/seller-order',
+  name:'SellerOrder',
+  component:()=>import('../views/Personal/SellerOrder.vue'),
+  meta:{requiresAuth:true}
+  },
+  {
+  path: '/chat',
+  name: 'Chat',
+  component: () => import('../views/Personal/Chat.vue'),
+  meta: {
+    requiresAuth: true //必须登录才能进入聊天页面
+  }
+  },
+  {
+  path: '/userSetting',
+  name: 'UserSetting',
+  component: () => import('../views/Personal/UserSetting/index.vue')
   }
 ]
 
