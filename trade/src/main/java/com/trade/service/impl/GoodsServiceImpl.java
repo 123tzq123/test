@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.trade.domain.IdleGoods;
 import com.trade.dto.GoodsPublishDTO;
+import com.trade.dto.GoodsQueryDTO;
 import com.trade.dto.GoodsUpdateDTO;
 import com.trade.exception.GlobalException;
 import com.trade.mapper.IdleGoodsMapper;
@@ -27,12 +28,6 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
         IdleGoods goods = new IdleGoods();
         BeanUtils.copyProperties(dto, goods);
         goods.setUserId(userId);
-//        goods.setCategoryId(dto.getCategoryId());
-//        goods.setTitle(dto.getTitle());
-//        goods.setContent(dto.getContent());
-//        goods.setPrice(dto.getPrice());
-//        goods.setOriginalPrice(dto.getOriginalPrice());
-//        goods.setGoodsImg(dto.getGoodsImg());
         goods.setStatus(1); //0待审核
         this.save(goods);
     }
@@ -168,5 +163,34 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
         }
         BeanUtils.copyProperties(dto,goods);
         this.updateById(goods);
+    }
+
+    @Override
+    public Page<IdleGoods> findGoodsByCondition(GoodsQueryDTO queryDTO) {
+        Page<IdleGoods> page = new Page<>(queryDTO.getPageNum(), queryDTO.getPageSize());
+        LambdaQueryWrapper<IdleGoods> wrapper = new LambdaQueryWrapper<>();
+        //只查询上架商品 status=1
+        wrapper.eq(IdleGoods::getStatus, 1);
+
+        //分类筛选
+        if (queryDTO.getCategoryId() != null) {
+            wrapper.eq(IdleGoods::getCategoryId, queryDTO.getCategoryId());
+        }
+        //价格区间筛选
+        if (queryDTO.getMinPrice() != null) {
+            wrapper.ge(IdleGoods::getPrice, queryDTO.getMinPrice());
+        }
+        if (queryDTO.getMaxPrice() != null) {
+            wrapper.le(IdleGoods::getPrice, queryDTO.getMaxPrice());
+        }
+        //商品名称模糊查询，使用title字段
+        if (queryDTO.getTitle() != null && !queryDTO.getTitle().trim().isEmpty()) {
+            wrapper.like(IdleGoods::getTitle, queryDTO.getTitle().trim());
+            System.out.println("title: "+ queryDTO.getTitle());
+        }
+        //按创建时间降序
+        wrapper.orderByDesc(IdleGoods::getCreateTime);
+        this.page(page, wrapper);
+        return page;
     }
 }

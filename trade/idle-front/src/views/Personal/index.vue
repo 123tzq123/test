@@ -2,8 +2,11 @@
   <NavBar></NavBar>
   <div style="padding:30px 40px">
     <h2>我的发布</h2>
-    <!--新增我的订单按钮-->
-    <el-button type="primary" style="margin-bottom:15px" @click="$router.push('/personal/order')">我的订单</el-button>
+    <!--新增我的订单、我的收藏按钮-->
+    <div style="margin-bottom:15px;display:flex;gap:15px">
+      <el-button type="primary" @click="$router.push('/personal/order')">我的订单</el-button>
+      <el-button type="warning" @click="$router.push('/personal/collect')">我的收藏</el-button>
+    </div>
     <el-table :data="goodsList" border>
       <el-table-column label="标题" prop="title"></el-table-column>
       <el-table-column label="价格">
@@ -80,7 +83,6 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const goodsList = ref<GoodsItem[]>([])
 const editDialogVisible = ref(false)
-//修改成下面其中一套即可
 let temp = Number(Cookies.get("userId") ?? 0)
 const loginUserId = isNaN(temp) ? 0 : temp
 
@@ -177,7 +179,7 @@ const handleDelete = (id: number) => {
     }
   }).catch(() => {})
 }
-//下架、上架、删除、跳转详情原有代码不变省略
+//跳转到商品详情页
 const toDetail = (id:number)=>{
   router.push(`/goods/${id}`)
 }

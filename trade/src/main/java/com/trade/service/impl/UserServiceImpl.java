@@ -69,7 +69,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
             throw new GlobalException(500, "账号被禁用");
         }
         UserVO vo = new UserVO();
-        vo.setId(user.getId());
+        vo.setUserId(user.getId());
         vo.setUsername(user.getUsername());
         vo.setNickname(user.getNickname());
         vo.setAvatar(user.getAvatar());

@@ -1,7 +1,7 @@
 import request from '../utils/request'
-import { Result, GoodsItem, PageVO, GoodsPublishDTO, GoodsUpdateDTO } from '../types'
+import { Result, GoodsItem, PageVO, GoodsPublishDTO, GoodsUpdateDTO, GoodsCategory, CollectDTO } from '../types'
 
-//获取商品列表
+//原来简单分页（保留不动，给个人中心页面使用）
 export function getGoodsListApi(pageNum = 1, pageSize = 8, categoryId?: number): Promise<Result<PageVO<GoodsItem>>> {
   return request({
     method: 'get',
@@ -13,6 +13,32 @@ export function getGoodsListApi(pageNum = 1, pageSize = 8, categoryId?: number):
     }
   })
 }
+
+// ============新增接口开始============
+//首页多条件筛选商品（分类+价格区间+商品名称搜索）
+export function searchGoodsApi(data:{
+  categoryId?: number|null
+  minPrice?: number|null
+  maxPrice?: number|null
+  title?: string
+  pageNum: number
+  pageSize: number
+}): Promise<Result<PageVO<GoodsItem>>> {
+  return request({
+    method: 'post',
+    url: '/goods/list',
+    data
+  })
+}
+
+//获取全部商品分类列表
+export function getCategoryListApi(): Promise<Result<GoodsCategory[]>> {
+  return request({
+    method: 'get',
+    url: '/goods/category/list'
+  })
+}
+// ============新增接口结束============
 
 //获取商品详情
 export function getGoodsDetailApi(goodsId: number): Promise<Result<GoodsItem>> {
@@ -55,18 +81,14 @@ export function getMyGoodsApi(pageNum = 1, pageSize = 8): Promise<Result<PageVO<
   })
 }
 
-// ============ 新增：图片上传接口 ============
+//图片上传接口
 export function uploadImgApi(file: File): Promise<Result<string>> {
   const formData = new FormData()
   formData.append('file', file)
   return request({
     method: 'post',
     url: '/file/upload',
-    data: formData,
-    // 覆盖默认请求头，上传文件必须设置multipart/form‑data
-    headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+    data: formData
   })
 }
 
@@ -85,3 +107,29 @@ export function updateGoodsApi(data:GoodsUpdateDTO):Promise<Result<null>>{
     data
   })
 }
+
+//收藏或者取消收藏
+export function isCollectApi(data: CollectDTO): Promise<Result<boolean>> {
+  return request({
+    method: 'post',
+    url: '/collect/isCollect',
+    data
+  })
+}
+
+export function changeCollectApi(data: CollectDTO): Promise<Result<string>> {
+  return request({
+    method: 'post',
+    url: '/collect/change',
+    data
+  })
+}
+//获取我的收藏列表
+//获取我的收藏列表
+export function getMyCollectApi():Promise<Result<GoodsItem[]>>{
+  return request({
+    method:'post',
+    url:'/collect/myList'
+  })
+}
+

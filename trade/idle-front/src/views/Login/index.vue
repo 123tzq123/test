@@ -41,6 +41,8 @@ const handleLogin = async () => {
   const res = await loginApi(loginForm.value)
   if (res.code === 200) {
     Cookies.set('token', res.data.token)
+    //新增：存储userId到Cookie
+    Cookies.set('userId', String(res.data.userId))
     ElMessage.success('登录成功')
     router.push('/')
   } else {

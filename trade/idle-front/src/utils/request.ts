@@ -3,7 +3,8 @@ import Cookies from 'js-cookie'
 
 const service = axios.create({
   baseURL: 'http://127.0.0.1:8080',
-  timeout: 8000
+  timeout: 8000,
+  withCredentials: true
 })
 
 //请求拦截器：自动携带token

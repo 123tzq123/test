@@ -1,9 +1,12 @@
 package com.trade.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.trade.constant.AttributeConst;
+import com.trade.domain.GoodsCategory;
 import com.trade.dto.GoodsPublishDTO;
 import com.trade.domain.IdleGoods;
+import com.trade.dto.GoodsQueryDTO;
 import com.trade.dto.GoodsUpdateDTO;
+import com.trade.service.CategoryService;
 import com.trade.service.GoodsService;
 import com.trade.util.JwtUtil;
 import com.trade.vo.GoodsVO;
@@ -13,12 +16,16 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/goods")
 public class GoodsController {
     @Resource
     private GoodsService goodsService;
+
+    @Resource
+    private CategoryService categoryService;
 
     //发布闲置商品
     @PostMapping("/publish")
@@ -95,6 +102,22 @@ public class GoodsController {
         Long loginUserId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
         goodsService.updateGoods(dto, loginUserId);
         return ResultVO.success(null);
+    }
+
+    @PostMapping("/list")
+    public ResultVO<Page<IdleGoods>> getGoodsList(@RequestBody GoodsQueryDTO queryDTO){
+        //设置默认分页参数
+        if(queryDTO.getPageNum() == null) queryDTO.setPageNum(1);
+        if(queryDTO.getPageSize() == null) queryDTO.setPageSize(8);
+        Page<IdleGoods> page = goodsService.findGoodsByCondition(queryDTO);
+        return ResultVO.success(page);
+    }
+
+    //获取全部商品分类，给前端下拉框使用
+    @GetMapping("/category/list")
+    public ResultVO<List<GoodsCategory>> getAllCategory(){
+        List<GoodsCategory> list = categoryService.list();
+        return ResultVO.success(list);
     }
 
 

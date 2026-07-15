@@ -3,6 +3,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.trade.domain.IdleGoods;
 import com.trade.dto.GoodsPublishDTO;
+import com.trade.dto.GoodsQueryDTO;
 import com.trade.dto.GoodsUpdateDTO;
 import com.trade.vo.GoodsVO;
 
@@ -29,4 +30,6 @@ public interface GoodsService extends IService<IdleGoods> {
     IdleGoods getGoodsById(Long goodsId);
 
     void updateGoods(GoodsUpdateDTO dto, Long loginUserId);
+
+    Page<IdleGoods> findGoodsByCondition(GoodsQueryDTO queryDTO);
 }

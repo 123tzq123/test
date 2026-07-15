@@ -34,6 +34,15 @@
         >
           联系卖家
         </el-button>
+        <!-- 收藏按钮：自己发布的商品不显示收藏按钮 -->
+        <el-button
+          v-if="goods.userId !== loginUserId"
+          type="warning"
+          size="large"
+          @click="handleCollect"
+        >
+          {{ isCollect ? "取消收藏" : "收藏商品" }}
+        </el-button>
       </el-col>
     </el-row>
   </div>
@@ -44,7 +53,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Cookies from 'js-cookie'
 import NavBar from '../../components/NavBar.vue'
-import { getGoodsDetailApi } from '../../api/goods'
+import { getGoodsDetailApi, isCollectApi, changeCollectApi } from '../../api/goods'
 import { createOrderApi } from '../../api/order'
 import { ElMessage } from 'element-plus'
 import { GoodsItem } from '../../types'
@@ -52,18 +61,47 @@ import { GoodsItem } from '../../types'
 const route = useRoute()
 const router = useRouter()
 const goods = ref<GoodsItem>()
+// 是否收藏
+const isCollect = ref(false)
 // 获取当前登录人的userId
 const loginUserId = Number(Cookies.get('userId')) || 0
+console.log(loginUserId)
+let goodsId = 0
 
 // 加载商品详情
 const getDetail = async () => {
-  const goodsId = route.params.goodsId ? Number(route.params.goodsId) : 0;
+  goodsId = route.params.goodsId ? Number(route.params.goodsId) : 0;
   if(isNaN(goodsId)){
     return;
   }
   const res = await getGoodsDetailApi(goodsId)
   if (res.code === 200) {
     goods.value = res.data
+  }
+  // 获取收藏状态
+  getCollectState()
+}
+
+//页面加载判断收藏状态
+const getCollectState = async ()=>{
+  const res = await isCollectApi({ goodsId, userId:loginUserId })
+  if(res.code ===200){
+    isCollect.value = res.data
+  }
+}
+
+//点击收藏
+const handleCollect = async ()=>{
+  if(loginUserId ===0){
+    ElMessage.warning("请先登录！")
+    return
+  }
+  const res = await changeCollectApi({goodsId,userId:loginUserId})
+  if(res.code ===200){
+    isCollect.value = !isCollect.value
+    ElMessage.success(res.data)
+  }else {
+    ElMessage.warning(res.msg)
   }
 }
 

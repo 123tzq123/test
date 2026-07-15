@@ -7,7 +7,7 @@ interface LoginForm {
 }
 
 //登录接口
-export function loginApi(data: LoginForm): Promise<Result<LoginData>> {
+export function loginApi(data: UserLoginDTO): Promise<Result<LoginData>> {
   return request({
     method: 'post',
     url: '/user/login',

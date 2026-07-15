@@ -63,6 +63,10 @@ const routes: RouteRecordRaw[] = [
   path: '/userSetting',
   name: 'UserSetting',
   component: () => import('../views/Personal/UserSetting/index.vue')
+  },
+  {
+  path:'/personal/collect',
+  component:()=>import('../views/Personal/MyCollect.vue')
   }
 ]
 

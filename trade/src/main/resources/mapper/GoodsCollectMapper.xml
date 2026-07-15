@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trade.mapper.GoodsCollectMapper">
+    <select id="getCollectGoodsByUserId" resultType="com.trade.domain.IdleGoods">
+        SELECT g.* FROM goods_collect c
+        LEFT JOIN idle_goods g ON c.goods_id = g.id
+        WHERE c.user_id = #{userId} AND g.status = 1
+        ORDER BY c.create_time DESC
+    </select>
+</mapper>

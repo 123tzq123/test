@@ -21,10 +21,10 @@ export interface PageVO<T> {
   size: number
 }
 
-//登录返回data类型
+//登录返回data类型（原来字段是id，改成userId）
 export interface LoginData {
   token: string
-  id: number
+  userId: number  //把id修改为userId，和后端返回字段一致
   username: string
 }
 
@@ -73,3 +73,17 @@ export interface SysUser {
   nickname: string
   avatar: string
 }
+
+export interface GoodsCategory {
+  id: number
+  categoryName: string
+  sort: number
+  createTime: string
+}
+
+//收藏DTO：新增userId字段，前端传给后端
+export interface CollectDTO {
+  goodsId: number
+  userId: number
+}
+
