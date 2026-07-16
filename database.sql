@@ -83,6 +83,33 @@ CREATE TABLE report(
                        create_time DATETIME DEFAULT NOW()
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品举报表';
 
+-- 7. 收藏表
+CREATE TABLE goods_collect (
+                               id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键id',
+                               user_id BIGINT NOT NULL COMMENT '用户id',
+                               goods_id BIGINT NOT NULL COMMENT '商品id',
+                               create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
+                               UNIQUE KEY uk_user_goods (user_id,goods_id)
+) COMMENT '商品收藏表';
+
+-- 8. 评价表
+CREATE TABLE `goods_comment` (
+                                 `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '评价id',
+                                 `goods_id` bigint NOT NULL COMMENT '被评价的商品id',
+                                 `order_id` bigint NOT NULL COMMENT '对应的订单id，一个订单只能评价一次',
+                                 `buyer_id` bigint NOT NULL COMMENT '买家id（评价人）',
+                                 `seller_id` bigint NOT NULL COMMENT '卖家id（商品发布者）',
+                                 `score` int NOT NULL COMMENT '评分1‑5分',
+                                 `content` varchar(1000) DEFAULT NULL COMMENT '文字评价内容',
+                                 `img_list` varchar(500) DEFAULT NULL COMMENT '多张图片地址，逗号隔开',
+                                 `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '评价时间',
+                                 FOREIGN KEY (`goods_id`) REFERENCES `idle_goods`(`id`),
+                                 FOREIGN KEY (`order_id`) REFERENCES `trade_order`(`id`),
+                                 FOREIGN KEY (`buyer_id`) REFERENCES `sys_user`(`id`),
+                                 FOREIGN KEY (`seller_id`) REFERENCES `sys_user`(`id`),
+                                 UNIQUE KEY `uk_order_id` (`order_id`) -- 约束：一个订单只能评价1次
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='商品评价表';
+
 -- 初始化分类数据
 INSERT INTO goods_category(category_name,sort) VALUES
                                                    ('电子产品',1),
