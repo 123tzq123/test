@@ -28,4 +28,11 @@ public interface GoodsCommentMapper {
             "LEFT JOIN idle_goods ig ON gc.goods_id = ig.id " +
             "WHERE ig.user_id = #{sellerId}")
     List<GoodsCommentVO> selectCommentBySellerId(@Param("sellerId") Long sellerId);
+
+    // ========== 新增：查询当前买家自己发布的所有评价 ==========
+    @Select("SELECT gc.id,gc.goods_id goodsId,gc.score,gc.content,gc.img_list imgList,gc.create_time createTime,su.id buyerId,su.nickname,su.avatar " +
+            "FROM goods_comment gc " +
+            "LEFT JOIN sys_user su ON gc.buyer_id = su.id " +
+            "WHERE gc.buyer_id = #{buyerId}")
+    List<GoodsCommentVO> selectMyCommentByBuyerId(@Param("buyerId") Long buyerId);
 }

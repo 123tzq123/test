@@ -1,61 +1,61 @@
 <template>
   <NavBar/>
-  <div class="detail" v-if="goods">
-    <el-row :gutter="40">
-      <el-col :span="10">
-        <div class="img-container">
-          <img
-            v-for="img in goods.imgList"
-            :key="img"
-            :src="img"
-            class="good-img"
-          />
-        </div>
-      </el-col>
-      <el-col :span="14">
-        <h2>{{ goods.title }}</h2>
-        <!--卖家头像+昵称 点击跳转卖家主页-->
-        <div class="seller-box" v-if="goods.sellerName"
-             @click="$router.push({path:'/seller',query:{sellerId:goods.userId}})">
-          <el-avatar :src="goods.avatar" size="60"></el-avatar>
-          <span class="seller-text">{{ goods.sellerName }}</span>
-        </div>
-        <p class="price">售价：{{ goods.price }} 元</p>
-        <p>卖家：{{ goods.sellerName }}</p>
-        <p>商品描述：{{ goods.content }}</p>
-        <p>浏览量：{{ goods.viewCount ?? 0 }}次</p>
+  <div class="detail-wrap" v-if="goods">
+    <el-card class="detail-card">
+      <el-row :gutter="40">
+        <el-col :span="10">
+          <div class="img-list-box">
+            <img
+              v-for="img in goods.imgList"
+              :key="img"
+              :src="img"
+              class="detail-img"
+            />
+          </div>
+        </el-col>
+        <el-col :span="14">
+          <h2 class="goods-name">{{ goods.title }}</h2>
+          <!--卖家信息栏-->
+          <div class="seller-info" v-if="goods.sellerName"
+               @click="$router.push({path:'/seller',query:{sellerId:goods.userId}})">
+            <el-avatar :src="goods.avatar" size="64"></el-avatar>
+            <span class="seller-name">{{ goods.sellerName }}</span>
+          </div>
+          <p class="price-text">售价：<span class="price-num">{{ goods.price }}</span> 元</p>
+          <p class="info-line">卖家：{{ goods.sellerName }}</p>
+          <p class="info-line">商品描述：{{ goods.content }}</p>
+          <p class="info-line view-num">浏览量：{{ goods.viewCount ?? 0 }}次</p>
 
-        <!--新增：返回首页按钮-->
-        <el-button size="large" @click="backToHome">返回首页</el-button>
-
-        <!--下单按钮-->
-        <el-button
-          v-if="goods.status === 1 && goods.userId !== loginUserId"
-          type="primary"
-          size="large"
-          @click="buyGoods"
-        >
-          立即购买
-        </el-button>
-        <!-- ============ 新增联系卖家按钮 ============ -->
-        <el-button
-          v-if="goods.status === 1 && goods.userId !== loginUserId"
-          size="large"
-          @click="goChat"
-        >
-          联系卖家
-        </el-button>
-        <!-- 收藏按钮：自己发布的商品不显示收藏按钮 -->
-        <el-button
-          v-if="goods.userId !== loginUserId"
-          type="warning"
-          size="large"
-          @click="handleCollect"
-        >
-          {{ isCollect ? "取消收藏" : "收藏商品" }}
-        </el-button>
-      </el-col>
-    </el-row>
+          <!--操作按钮组-->
+          <div class="btn-group">
+            <el-button size="large" @click="backToHome">返回首页</el-button>
+            <el-button
+              v-if="goods.status === 1 && goods.userId !== loginUserId"
+              type="primary"
+              size="large"
+              @click="buyGoods"
+            >
+              立即购买
+            </el-button>
+            <el-button
+              v-if="goods.status === 1 && goods.userId !== loginUserId"
+              size="large"
+              @click="goChat"
+            >
+              联系卖家
+            </el-button>
+            <el-button
+              v-if="goods.userId !== loginUserId"
+              type="warning"
+              size="large"
+              @click="handleCollect"
+            >
+              {{ isCollect ? "取消收藏" : "收藏商品" }}
+            </el-button>
+          </div>
+        </el-col>
+      </el-row>
+    </el-card>
   </div>
 </template>
 
@@ -72,14 +72,10 @@ import { GoodsItem } from '../../types'
 const route = useRoute()
 const router = useRouter()
 const goods = ref<GoodsItem>()
-// 是否收藏
 const isCollect = ref(false)
-// 获取当前登录人的userId
 const loginUserId = Number(Cookies.get('userId')) || 0
-console.log(loginUserId)
 let goodsId = 0
 
-// 加载商品详情
 const getDetail = async () => {
   goodsId = route.params.goodsId ? Number(route.params.goodsId) : 0;
   if(isNaN(goodsId)){
@@ -89,11 +85,9 @@ const getDetail = async () => {
   if (res.code === 200) {
     goods.value = res.data
   }
-  // 获取收藏状态
   getCollectState()
 }
 
-//页面加载判断收藏状态
 const getCollectState = async ()=>{
   const res = await isCollectApi({ goodsId, userId:loginUserId })
   if(res.code ===200){
@@ -101,7 +95,6 @@ const getCollectState = async ()=>{
   }
 }
 
-//点击收藏
 const handleCollect = async ()=>{
   if(loginUserId ===0){
     ElMessage.warning("请先登录！")
@@ -116,7 +109,6 @@ const handleCollect = async ()=>{
   }
 }
 
-// 下单
 const buyGoods = async () => {
   if (!goods.value) return
   const res = await createOrderApi(goods.value.id)
@@ -126,7 +118,6 @@ const buyGoods = async () => {
   }
 }
 
-// 跳转到聊天页面
 const goChat = () => {
   if(!goods.value) return
   router.push({
@@ -138,7 +129,7 @@ const goChat = () => {
   })
 }
 
-// 新增：点击返回首页，设置刷新标记
+// 返回首页刷新标记
 const backToHome = () => {
   localStorage.setItem("needRefreshGoods", "1");
   router.push("/");
@@ -150,28 +141,62 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.detail {
+.detail-wrap {
+  padding: 24px 48px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 64px);
+}
+.detail-card {
+  border-radius: 12px;
   padding: 30px;
 }
-.good-img {
-  width: 350px;
-  height: 350px;
+.img-list-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.detail-img {
+  width: 100%;
+  height: 360px;
   object-fit: cover;
-  margin-bottom: 8px;
+  border-radius: 8px;
 }
-.price {
-  font-size: 22px;
-  color: red;
-  margin: 10px 0;
+.goods-name {
+  font-size: 24px;
+  color: #303133;
+  margin: 0 0 20px;
 }
-.seller-box{
-  display:flex;
-  align-items:center;
-  margin:10px 0;
+.seller-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
   cursor: pointer;
 }
-.seller-text{
-  font-size:17px;
-  margin-left:10px;
+.seller-name {
+  font-size: 18px;
+  color: #409EFF;
+}
+.price-text {
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+.price-num {
+  color: #f53f3f;
+  font-weight: 600;
+  font-size: 26px;
+}
+.info-line {
+  font-size: 16px;
+  color: #606266;
+  margin: 8px 0;
+}
+.view-num {
+  color: #909399;
+}
+.btn-group {
+  display: flex;
+  gap: 16px;
+  margin-top: 30px;
 }
 </style>

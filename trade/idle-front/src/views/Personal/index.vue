@@ -1,60 +1,68 @@
 <template>
   <NavBar></NavBar>
-  <div style="padding:30px 40px">
-    <h2>我的发布</h2>
-    <!--新增我的订单、我的收藏按钮-->
-    <div style="margin-bottom:15px;display:flex;gap:15px">
-      <el-button type="primary" @click="$router.push('/personal/order')">我的订单</el-button>
-      <el-button type="warning" @click="$router.push('/personal/collect')">我的收藏</el-button>
+  <div class="page-wrap">
+    <h2 class="page-title">我的发布</h2>
+    <!-- 快捷跳转按钮 -->
+    <div class="btn-nav-group">
+      <el-button type="primary" size="large" @click="$router.push('/personal/order')">我的订单</el-button>
+      <el-button type="warning" size="large" @click="$router.push('/personal/collect')">我的收藏</el-button>
     </div>
-    <el-table :data="goodsList" border>
-      <el-table-column label="标题" prop="title"></el-table-column>
-      <el-table-column label="价格">
-        <template #default="scope">
-          {{ scope.row.price ?? 0 }}元
-        </template>
-      </el-table-column>
-      <el-table-column label="状态">
-        <template #default="scope">
-          <span v-if="scope.row.status === 1">已上架</span>
-          <span v-if="scope.row.status === 0">已下架</span>
-          <span v-if="scope.row.status === 3">已售出</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作">
-        <template #default="scope">
-          <el-button v-if="scope.row.status === 1" type="danger" @click="offSale(scope.row.id)">下架</el-button>
-          <template v-if="scope.row.status === 0">
-            <el-button type="success" @click="onSale(scope.row.id)">上架</el-button>
-            <el-button type="danger" @click="handleDelete(scope.row.id)">删除</el-button>
+
+    <el-card class="table-card">
+      <el-table :data="goodsList" border stripe>
+        <el-table-column label="商品标题" prop="title" min-width="200"></el-table-column>
+        <el-table-column label="售价" width="120">
+          <template #default="scope">
+            <span class="price-text">{{ scope.row.price ?? 0 }}元</span>
           </template>
-          <el-button type="primary" @click="openEditDialog(scope.row)">编辑商品</el-button>
-          <el-button type="info" @click="toDetail(scope.row.id)">查看详情</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+        </el-table-column>
+        <el-table-column label="浏览量" width="100">
+          <template #default="scope">
+            {{ scope.row.viewCount ?? 0 }}次
+          </template>
+        </el-table-column>
+        <el-table-column label="商品状态" width="120">
+          <template #default="scope">
+            <el-tag v-if="scope.row.status === 1" type="success">已上架</el-tag>
+            <el-tag v-if="scope.row.status === 0" type="info">已下架</el-tag>
+            <el-tag v-if="scope.row.status === 3" type="danger">已售出</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="420">
+          <template #default="scope">
+            <el-button v-if="scope.row.status === 1" type="danger" size="small" @click="offSale(scope.row.id)">下架</el-button>
+            <template v-if="scope.row.status === 0">
+              <el-button type="success" size="small" @click="onSale(scope.row.id)">上架</el-button>
+              <el-button type="danger" size="small" @click="handleDelete(scope.row.id)">删除</el-button>
+            </template>
+            <el-button type="primary" size="small" @click="openEditDialog(scope.row)">编辑商品</el-button>
+            <el-button type="info" size="small" @click="toDetail(scope.row.id)">查看详情</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
 
     <!--编辑商品弹窗-->
-    <el-dialog v-model="editDialogVisible" title="编辑商品" width="600px">
-      <el-form :model="editForm" label-width="80px">
+    <el-dialog v-model="editDialogVisible" title="编辑闲置商品" width="620px">
+      <el-form :model="editForm" label-width="90px">
         <el-form-item label="商品标题">
-          <el-input v-model="editForm.title"></el-input>
+          <el-input v-model="editForm.title" size="large" placeholder="请输入商品标题"></el-input>
         </el-form-item>
         <el-form-item label="商品价格">
-          <el-input v-model.number="editForm.price"></el-input>
+          <el-input v-model.number="editForm.price" size="large" placeholder="请输入售价"></el-input>
         </el-form-item>
         <el-form-item label="商品描述">
-          <el-input v-model="editForm.content" type="textarea" rows="4"></el-input>
+          <el-input v-model="editForm.content" type="textarea" rows="4" size="large" placeholder="描述商品成色、使用时长等信息"></el-input>
         </el-form-item>
         <el-form-item label="商品图片">
-          <!-- 回显已上传图片 -->
+          <!-- 已上传图片预览 -->
           <div class="img-box">
             <div class="img-item" v-for="(img,index) in imgList" :key="index">
               <img :src="img" />
               <el-icon class="del-icon" @click="deleteImg(index)"><Delete /></el-icon>
             </div>
           </div>
-          <!--继续上传图片-->
+          <!-- 继续上传图片 -->
           <el-upload :http-request="uploadImg" list-type="picture-card" :limit="6">
             <template #default>
               <el-icon><Plus /></el-icon>
@@ -63,8 +71,10 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="editDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitEdit">保存修改</el-button>
+        <div class="dialog-footer">
+          <el-button size="large" @click="editDialogVisible = false">取消</el-button>
+          <el-button type="primary" size="large" @click="submitEdit">保存修改</el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -190,16 +200,50 @@ onMounted(()=>{
 </script>
 
 <style scoped>
+/* 全站统一页面外层 */
+.page-wrap {
+  padding: 24px 48px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 64px);
+}
+/* 页面标题统一样式 */
+.page-title {
+  font-size: 22px;
+  margin: 0 0 24px;
+  color: #303133;
+  border-left: 4px solid #409EFF;
+  padding-left: 12px;
+}
+/* 顶部跳转按钮组 */
+.btn-nav-group {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+/* 表格卡片容器 */
+.table-card {
+  border-radius: 12px;
+  padding: 24px;
+}
+/* 表格价格文字红色 */
+.price-text {
+  font-size: 16px;
+  color: #f53f3f;
+  font-weight: 500;
+}
+/* 图片预览区域 */
 .img-box{
   display:flex;
-  gap:10px;
+  gap:12px;
   flex-wrap:wrap;
-  margin-bottom:10px;
+  margin-bottom:16px;
 }
 .img-item{
   width:80px;
   height:80px;
   position:relative;
+  border-radius: 6px;
+  overflow: hidden;
 }
 .img-item img{
   width:100%;
@@ -212,5 +256,12 @@ onMounted(()=>{
   right:2px;
   background:#fff;
   cursor:pointer;
+  border-radius: 50%;
+}
+/* 弹窗底部按钮居中 */
+.dialog-footer {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
 }
 </style>

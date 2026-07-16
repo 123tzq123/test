@@ -1,41 +1,57 @@
 <template>
-  <div class="home-container">
-    <!--卖家头像和平均分-->
-    <div class="seller-header">
-      <el-avatar :src="sellerInfo.avatar" size="80"></el-avatar>
-      <h2>{{ sellerInfo.nickname }}</h2>
-      <p>综合评分：{{ avgScore }} 分</p>
-    </div>
-
-    <h3>他发布的闲置商品</h3>
-    <div class="goods-list">
-      <div class="goods-item" v-for="item in goodsList" :key="item.id">
-  <img :src="item.coverImg ?? ''" alt="">
-  <p>{{ item.title }}</p>
-  <p>价格：{{ item.price }}元</p>
-  <!-- 根据goodsId获取对应的评论 -->
-  <div class="comment-block" v-if="commentMap.get(item.id) && commentMap.get(item.id)!.length > 0">
-    <h4>买家评价</h4>
-    <div v-for="c in commentMap.get(item.id)" :key="c.id">
-      <el-rate v-model="c.score" disabled></el-rate>
-      <p>评价内容：{{ c.content }}</p>
-      <div class="img-box">
-        <img v-for="img in c.imgList" :key="img" :src="img" style="width:80px;height:80px;margin:4px">
+  <NavBar></NavBar>
+  <div class="page-wrap">
+    <h2 class="page-title">卖家主页</h2>
+    <!-- 卖家头部信息卡片 -->
+    <el-card class="seller-header-card">
+      <div class="seller-header">
+        <el-avatar :src="sellerInfo.avatar" size="80"></el-avatar>
+        <div class="seller-text">
+          <h2>{{ sellerInfo.nickname }}</h2>
+          <p class="score-text">综合评分：{{ avgScore }} 分</p>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
+    </el-card>
+
+    <h3 class="sub-title">他发布的闲置商品</h3>
+    <div class="goods-wrap">
+      <el-card class="goods-item-card" v-for="item in goodsList" :key="item.id">
+        <!-- 商品基础信息 -->
+        <div class="goods-main">
+          <img :src="item.coverImg ?? ''" class="goods-img" alt="">
+          <div class="goods-info">
+            <h4 class="goods-title">{{ item.title }}</h4>
+            <p class="goods-price">¥{{ item.price }}</p>
+            <p class="view-text">浏览 {{ item.viewCount ?? 0 }} 次</p>
+            <el-button type="primary" size="small" @click="$router.push('/goods/' + item.id)">查看详情</el-button>
+          </div>
+        </div>
+
+        <!-- 商品买家评价区域 -->
+        <div class="comment-block" v-if="commentMap.get(item.id) && commentMap.get(item.id)!.length > 0">
+          <h4 class="comment-title">买家评价</h4>
+          <div class="comment-item" v-for="c in commentMap.get(item.id)" :key="c.id">
+            <el-rate v-model="c.score" disabled size="small"></el-rate>
+            <p class="comment-content">评价内容：{{ c.content }}</p>
+            <div class="img-box">
+              <img v-for="img in c.imgList" :key="img" :src="img" class="comment-img" alt="">
+            </div>
+          </div>
+        </div>
+      </el-card>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import NavBar from '../../components/NavBar.vue'
 import { getSellerHomeApi, getSellerCommentApi } from '../../api/comment'
 import { GoodsItem, SysUser, SellerGoodsCommentVO, GoodsCommentVO, Result, SellerHomeVO } from '../../types'
 
 const route = useRoute()
+const router = useRouter()
 const sellerId = Number(route.query.sellerId)
 const sellerInfo = ref<SysUser>({} as SysUser)
 const avgScore = ref(0)
@@ -66,20 +82,121 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.seller-header{
-  display:flex;
-  align-items:center;
-  gap:15px;
-  margin-bottom:20px;
+/* 全站统一页面外层容器 */
+.page-wrap {
+  padding: 24px 48px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 64px);
 }
-.goods-item{
-  padding:15px;
-  border:1px solid #eee;
-  margin-bottom:12px;
+/* 统一页面主标题 */
+.page-title {
+  font-size: 22px;
+  margin: 0 0 24px;
+  color: #303133;
+  border-left: 4px solid #409EFF;
+  padding-left: 12px;
 }
-.comment-block{
-  margin-top:10px;
-  padding:10px;
-  background:#f8f8f8;
+/* 次级小标题 */
+.sub-title {
+  font-size: 18px;
+  margin: 30px 0 16px;
+  color: #303133;
+}
+/* 卖家头部卡片 */
+.seller-header-card {
+  border-radius: 12px;
+  padding: 30px;
+}
+.seller-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.seller-text h2 {
+  font-size: 24px;
+  margin: 0 0 8px;
+}
+.score-text {
+  font-size: 16px;
+  color: #f53f3f;
+  font-weight: 500;
+}
+/* 商品列表容器 */
+.goods-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+/* 单个商品卡片 */
+.goods-item-card {
+  border-radius: 12px;
+  padding: 24px;
+}
+/* 商品头部图文区域 */
+.goods-main {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+.goods-img {
+  width: 140px;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.goods-info {
+  flex: 1;
+}
+.goods-title {
+  font-size: 18px;
+  margin: 0 0 8px;
+}
+.goods-price {
+  font-size: 20px;
+  color: #f53f3f;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.view-text {
+  font-size: 13px;
+  color: #909399;
+  margin: 0 0 12px;
+}
+/* 评价区块 */
+.comment-block {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+.comment-title {
+  font-size: 16px;
+  margin: 0 0 16px;
+  color: #303133;
+}
+.comment-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+.comment-item:last-child {
+  border-bottom: none;
+}
+.comment-content {
+  font-size: 15px;
+  color: #606266;
+  margin: 8px 0;
+}
+/* 评价图片 */
+.img-box {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.comment-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
 }
 </style>

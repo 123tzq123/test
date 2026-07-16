@@ -33,44 +33,83 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/Publish/index.vue'),
     meta: { requiresAuth: true } //必须登录
   },
+  // 个人中心总入口（保留）
   {
     path: '/personal',
     name: 'Personal',
     component: () => import('../views/Personal/index.vue'),
     meta: { requiresAuth: true }
   },
+  // ========== 新增：我的发布 /personal/goods ==========
   {
-  path: '/personal/order',
-  name: 'MyOrder',
-  component: () => import('../views/Personal/Order.vue'),
-  meta: { requiresAuth: true }
+    path: '/personal/goods',
+    name: 'MyGoods',
+    component: () => import('../views/Personal/index.vue'),
+    meta: { requiresAuth: true }
   },
+  // 我的订单
   {
-  path:'/personal/seller-order',
-  name:'SellerOrder',
-  component:()=>import('../views/Personal/SellerOrder.vue'),
-  meta:{requiresAuth:true}
+    path: '/personal/order',
+    name: 'MyOrder',
+    component: () => import('../views/Personal/Order.vue'),
+    meta: { requiresAuth: true }
   },
+  // ========== 修复卖出订单路径：改为 /personal/sell 和导航跳转一致 ==========
   {
-  path: '/chat',
-  name: 'Chat',
-  component: () => import('../views/Personal/Chat.vue'),
-  meta: {
-    requiresAuth: true //必须登录才能进入聊天页面
-  }
+    path: '/personal/sell',
+    name: 'SellerOrder',
+    component: () => import('../views/Personal/SellerOrder.vue'),
+    meta: { requiresAuth: true }
   },
+  // ========== 新增：过往评价 ==========
   {
-  path: '/userSetting',
-  name: 'UserSetting',
-  component: () => import('../views/Personal/UserSetting/index.vue')
+    path: '/personal/comment',
+    name: 'MyComment',
+    component: () => import('../views/Personal/Comment.vue'),
+    meta: { requiresAuth: true }
   },
+  // ========== 新增：收到评价 ==========
   {
-  path:'/personal/collect',
-  component:()=>import('../views/Personal/MyCollect.vue')
+    path: '/personal/receiveComment',
+    name: 'ReceiveComment',
+    component: () => import('../views/Personal/ReceiveComment.vue'),
+    meta: { requiresAuth: true }
   },
+  // ========== 新增：我的主页（个人资料设置） ==========
   {
-  path:'/seller',
-  component:()=>import('../views/SellerHome/index.vue')
+    path: '/personal/home',
+    name: 'MyHome',
+    component: () => import('../views/Personal/UserSetting/index.vue'),
+    meta: { requiresAuth: true }
+  },
+  // 聊天页面
+  {
+    path: '/chat',
+    name: 'Chat',
+    component: () => import('../views/Personal/Chat.vue'),
+    meta: {
+      requiresAuth: true //必须登录才能进入聊天页面
+    }
+  },
+  // 个人资料设置（备用旧路径，保留兼容）
+  {
+    path: '/userSetting',
+    name: 'UserSetting',
+    component: () => import('../views/Personal/UserSetting/index.vue'),
+    meta: { requiresAuth: true }
+  },
+  // 我的收藏
+  {
+    path: '/personal/collect',
+    name: 'MyCollect',
+    component: () => import('../views/Personal/MyCollect.vue'),
+    meta: { requiresAuth: true }
+  },
+  // 卖家主页
+  {
+    path: '/seller',
+    name: 'SellerHome',
+    component: () => import('../views/SellerHome/index.vue')
   }
 ]
 

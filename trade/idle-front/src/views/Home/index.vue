@@ -1,40 +1,41 @@
 <template>
   <NavBar></NavBar>
-  <div class="home">
+  <div class="home-wrap">
     <!--筛选栏-->
-    <div class="filter-bar" style="display:flex;gap:15px;align-items:center;margin-bottom:20px">
-      <el-select v-model="query.categoryId" placeholder="全部分类" clearable @change="loadList">
+    <div class="filter-bar">
+      <el-select v-model="query.categoryId" placeholder="全部分类" clearable @change="loadList" size="large">
         <el-option label="全部分类" :value="null"></el-option>
         <el-option v-for="cate in categoryList" :key="cate.id" :label="cate.categoryName" :value="cate.id"></el-option>
       </el-select>
-
-      <el-input v-model="query.minPrice" placeholder="最低价格"></el-input>
-      <span>—</span>
-      <el-input v-model="query.maxPrice" placeholder="最高价格"></el-input>
-
-      <el-input v-model="query.title" placeholder="输入商品名称搜索" clearable @keyup.enter="loadList"></el-input>
-      <el-button type="primary" @click="loadList">搜索</el-button>
-      <el-button @click="resetCondition">清空筛选</el-button>
+      <div class="price-input">
+        <el-input v-model="query.minPrice" placeholder="最低价格" size="large"></el-input>
+        <span class="line">—</span>
+        <el-input v-model="query.maxPrice" placeholder="最高价格" size="large"></el-input>
+      </div>
+      <el-input v-model="query.title" placeholder="输入商品名称搜索" clearable @keyup.enter="loadList" size="large"></el-input>
+      <el-button type="primary" size="large" @click="loadList">搜索</el-button>
+      <el-button size="large" @click="resetCondition">清空筛选</el-button>
     </div>
 
-    <!--标题和手写分页按钮放在同一行-->
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-      <h2 style="margin:0">闲置商品列表（共{{total}}条，共{{pageCount}}页）</h2>
-      <div v-if="pageCount > 1" style="display:flex;gap:10px;align-items:center">
-        <el-button size="small" :disabled="currentPage === 1" @click="currentPage--; loadList()">上一页</el-button>
-        <span>第 {{ currentPage }} / {{ pageCount }} 页</span>
-        <el-button size="small" :disabled="currentPage === pageCount" @click="currentPage++; loadList()">下一页</el-button>
+    <!--分页标题行-->
+    <div class="page-header">
+      <h2 class="page-title">闲置商品列表（共{{total}}条，共{{pageCount}}页）</h2>
+      <div v-if="pageCount > 1" class="page-btn-group">
+        <el-button size="large" :disabled="currentPage === 1" @click="currentPage--; loadList()">上一页</el-button>
+        <span class="page-text">第 {{ currentPage }} / {{ pageCount }} 页</span>
+        <el-button size="large" :disabled="currentPage === pageCount" @click="currentPage++; loadList()">下一页</el-button>
       </div>
     </div>
 
-    <el-row :gutter="20">
+    <!--商品网格列表-->
+    <el-row :gutter="24" class="goods-grid">
       <el-col :span="6" v-for="item in goodsList" :key="item.id">
-        <el-card shadow="hover">
+        <el-card shadow="hover" class="goods-card">
           <img v-if="item.coverImg" :src="item.coverImg" class="goods-img" />
-          <h3>{{ item.title }}</h3>
-          <p>价格：{{ item.price ?? 0 }}元</p>
-          <p>浏览：{{ item.viewCount ?? 0 }}次</p>
-          <el-button @click="router.push('/goods/' + item.id)">查看详情</el-button>
+          <h3 class="goods-title">{{ item.title }}</h3>
+          <p class="goods-price">¥{{ item.price ?? 0 }}</p>
+          <p class="view-text">浏览 {{ item.viewCount ?? 0 }} 次</p>
+          <el-button type="primary" size="large" class="detail-btn" @click="router.push('/goods/' + item.id)">查看详情</el-button>
         </el-card>
       </el-col>
     </el-row>
@@ -127,10 +128,6 @@ const resetCondition = () => {
   ElMessage.success('筛选条件已清空')
 }
 
-// onMounted(async () => {
-//   await loadCategory()
-//   await loadList()
-// })
 onMounted(async () => {
   await loadCategory();
   const flag = localStorage.getItem("needRefreshGoods");
@@ -141,28 +138,90 @@ onMounted(async () => {
   } else {
     await loadList();
   }
-});
+})
 
 onBeforeRouteUpdate(() => {
   currentPage.value = 1
   loadList()
 })
-
 </script>
 
 <style scoped>
-.home {
-  padding: 20px 40px;
+.home-wrap {
+  padding: 24px 48px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 64px);
 }
 .filter-bar {
   display: flex;
-  gap: 15px;
   align-items: center;
-  margin-bottom:20px;
+  gap: 16px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+.price-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.line {
+  color: #909399;
+}
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+.page-title {
+  font-size: 20px;
+  margin: 0;
+  color: #303133;
+}
+.page-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.page-text {
+  font-size: 15px;
+  color: #606266;
+}
+.goods-grid {
+  row-gap: 24px;
+}
+.goods-card {
+  border-radius: 12px;
+  overflow: hidden;
 }
 .goods-img {
   width: 100%;
   height: 180px;
   object-fit: cover;
+  border-radius: 8px;
+}
+.goods-title {
+  font-size: 16px;
+  margin: 12px 0 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.goods-price {
+  font-size: 20px;
+  color: #f53f3f;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.view-text {
+  font-size: 13px;
+  color: #909399;
+  margin: 0 0 16px;
+}
+.detail-btn {
+  width: 100%;
+  border-radius: 8px;
 }
 </style>

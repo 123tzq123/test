@@ -46,4 +46,16 @@ public class GoodsCommentController {
         List<SellerGoodsCommentVO> list = commentService.getSellerAllComment(sellerId);
         return ResultVO.success(list);
     }
+
+    /**
+     * 获取当前登录买家自己发布的所有评价（过往评价页面使用）
+     */
+    // ========== 新增：获取当前登录买家自己发布的评价（过往评价页面） ==========
+    @GetMapping("/my")
+    public ResultVO<List<GoodsCommentVO>> getMyComment(HttpServletRequest request){
+        Long loginBuyerId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
+        List<GoodsCommentVO> myCommentList = commentService.getMyCommentByBuyerId(loginBuyerId);
+        return ResultVO.success(myCommentList);
+    }
+
 }

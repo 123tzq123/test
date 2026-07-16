@@ -1,8 +1,9 @@
 <template>
   <NavBar></NavBar>
-  <div class="chat-page">
-    <div class="chat-container">
-      <h3>商品对话聊天</h3>
+  <div class="page-wrap">
+    <h2 class="page-title">商品对话聊天</h2>
+    <el-card class="chat-card">
+      <!-- 聊天消息区域 -->
       <div class="msg-wrapper" ref="scrollRef">
         <div
           class="msg-item"
@@ -16,11 +17,17 @@
           <div class="time">{{ formatTime(item.createTime) }}</div>
         </div>
       </div>
+      <!-- 发送消息区域 -->
       <div class="send-area">
-        <el-input v-model="content" placeholder="请输入消息内容" @keyup.enter="sendMsg"></el-input>
-        <el-button type="primary" @click="sendMsg">发送</el-button>
+        <el-input
+          v-model="content"
+          placeholder="请输入消息内容"
+          size="large"
+          @keyup.enter="sendMsg"
+        ></el-input>
+        <el-button type="primary" size="large" @click="sendMsg">发送</el-button>
       </div>
-    </div>
+    </el-card>
   </div>
 </template>
 
@@ -82,23 +89,23 @@ const loadHistory = async () => {
 const initWebSocket = () => {
   ws = new WebSocket(`ws://localhost:8080/ws/chat?token=${token}`)
   ws.onmessage = (event) => {
-  console.log("后端推送的数据", event.data)
-  const res = JSON.parse(event.data)
-  if (res.type === "init") {
-    loginUserId.value = res.userId
-    if (!loaded) {
-      loaded = true
-      loadHistory()
+    console.log("后端推送的数据", event.data)
+    const res = JSON.parse(event.data)
+    if (res.type === "init") {
+      loginUserId.value = res.userId
+      if (!loaded) {
+        loaded = true
+        loadHistory()
+      }
+      return
     }
-    return
+    const data = res as MessageItem
+    msgList.value.push(data)
+    instance?.proxy?.$forceUpdate()
+    nextTick(() => {
+      if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
+    })
   }
-  const data = res as MessageItem
-  msgList.value.push(data)
-  instance?.proxy?.$forceUpdate()
-  nextTick(() => {
-    if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
-  })
-}
   ws.onerror = () => {
     ElMessage.error('聊天连接失败，请刷新页面重试')
   }
@@ -139,50 +146,77 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.chat-page {
-  padding: 20px;
+/* 全站统一页面外层样式 */
+.page-wrap {
+  padding: 24px 48px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 64px);
 }
-.chat-container {
+/* 页面统一标题样式 */
+.page-title {
+  font-size: 22px;
+  margin: 0 0 24px;
+  color: #303133;
+  border-left: 4px solid #409EFF;
+  padding-left: 12px;
+}
+/* 聊天主卡片 */
+.chat-card {
   width: 700px;
   margin: 0 auto;
+  padding: 30px;
+  border-radius: 12px;
 }
+/* 聊天消息滚动区域 */
 .msg-wrapper {
   height: 480px;
-  border: 1px solid #dcdcdc;
-  padding: 12px;
+  padding: 16px;
   overflow-y: auto;
-  background-color: #f8f8f8;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 24px;
 }
+/* 单条消息容器 */
 .msg-item {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  margin: 10px 0;
+  margin: 14px 0;
 }
+/* 自己发送的消息右对齐 */
 .msg-item.self {
   align-items: flex-end;
 }
+/* 消息气泡通用 */
 .msg-content {
   display: inline-block;
-  padding: 8px 14px;
-  max-width: 300px;
-  border-radius: 10px;
+  padding: 10px 16px;
+  max-width: 320px;
+  border-radius: 12px;
+  font-size: 15px;
   background-color: #ffffff;
-  color: #333;
+  color: #303133;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
+/* 我方气泡主色调 */
 .msg-item.self .msg-content {
-  background-color: #95ec69;
-  color: black;
+  background-color: #409EFF;
+  color: #fff;
 }
+/* 消息时间文字 */
 .time {
   font-size: 12px;
-  color: #999;
-  margin-top: 4px;
+  color: #909399;
+  margin-top: 6px;
 }
+/* 底部发送栏 */
 .send-area {
   display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 16px;
+  align-items: center;
+}
+.send-area :deep(.el-input__inner) {
+  border-radius: 8px;
 }
 .send-area :deep(.el-input) {
   flex: 1;

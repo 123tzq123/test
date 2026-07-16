@@ -16,4 +16,7 @@ public interface GoodsCommentService {
     boolean isOrderCommented(Long orderId);
 
     List<SellerGoodsCommentVO> getSellerAllComment(Long sellerId);
+
+    // ========== 新增：根据买家id查询自己发布的所有评价 ==========
+    List<GoodsCommentVO> getMyCommentByBuyerId(Long buyerId);
 }

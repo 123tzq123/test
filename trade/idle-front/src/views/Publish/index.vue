@@ -1,48 +1,52 @@
 <template>
   <NavBar></NavBar>
-  <div style="padding:40px">
-    <h2>发布闲置商品</h2>
-    <el-form label-width="80px" :model="publishForm">
-      <el-form-item label="商品标题">
-        <el-input v-model="publishForm.title" placeholder="输入商品标题"></el-input>
-      </el-form-item>
-      <el-form-item label="商品价格">
-        <el-input v-model.number="publishForm.price" placeholder="输入价格"></el-input>
-      </el-form-item>
-      <el-form-item label="商品分类">
-        <el-select v-model="publishForm.categoryId" placeholder="选择分类">
-          <el-option label="闲置数码" :value="1"></el-option>
-          <el-option label="书籍资料" :value="2"></el-option>
-          <el-option label="生活用品" :value="3"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="商品图片">
-        <div class="img-box">
-          <div class="img-item" v-for="(img, index) in imgList" :key="index">
-            <img :src="img" alt="">
-            <el-icon class="del-icon" @click="deleteImg(index)">
-              <Delete />
-            </el-icon>
+  <div class="page-wrap">
+    <h2 class="page-title">发布闲置商品</h2>
+    <el-card class="form-card">
+      <el-form label-width="90px" :model="publishForm">
+        <el-form-item label="商品标题">
+          <el-input v-model="publishForm.title" size="large" placeholder="输入商品标题"></el-input>
+        </el-form-item>
+        <el-form-item label="商品价格">
+          <el-input v-model.number="publishForm.price" size="large" placeholder="输入价格"></el-input>
+        </el-form-item>
+        <el-form-item label="商品分类">
+          <el-select v-model="publishForm.categoryId" placeholder="选择分类" size="large">
+            <el-option label="闲置数码" :value="1"></el-option>
+            <el-option label="书籍资料" :value="2"></el-option>
+            <el-option label="生活用品" :value="3"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="商品图片">
+          <div class="img-box">
+            <div class="img-item" v-for="(img, index) in imgList" :key="index">
+              <img :src="img" alt="">
+              <el-icon class="del-icon" @click="deleteImg(index)">
+                <Delete />
+              </el-icon>
+            </div>
           </div>
-        </div>
-        <el-upload
-          :http-request="uploadImg"
-          list-type="picture-card"
-          :limit="6"
-        >
-          <template #default>
-            <el-icon><Plus /></el-icon>
-          </template>
-        </el-upload>
-        <div style="font-size:12px;color:#999;margin-top:6px;">最多上传6张图片，第一张为商品封面</div>
-      </el-form-item>
-      <el-form-item label="商品描述">
-        <el-input v-model="publishForm.content" type="textarea" rows="4" placeholder="描述商品情况"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="submit">发布商品</el-button>
-      </el-form-item>
-    </el-form>
+          <el-upload
+            :http-request="uploadImg"
+            list-type="picture-card"
+            :limit="6"
+          >
+            <template #default>
+              <el-icon><Plus /></el-icon>
+            </template>
+          </el-upload>
+          <div class="tip-text">最多上传6张图片，第一张为商品封面</div>
+        </el-form-item>
+        <el-form-item label="商品描述">
+          <el-input v-model="publishForm.content" type="textarea" rows="4" size="large" placeholder="描述商品成色、使用时长、配件等信息"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <div class="submit-wrap">
+            <el-button type="primary" size="large" class="submit-btn" @click="submit">发布商品</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </el-card>
   </div>
 </template>
 
@@ -98,22 +102,46 @@ const submit = async () => {
   const res = await publishGoodsApi(publishForm.value)
   if (res.code === 200) {
     ElMessage.success('发布成功')
-    router.push('/home')
+    router.push('/')
   }
 }
 </script>
 
 <style scoped>
+/* 全站统一页面外层容器 */
+.page-wrap {
+  padding: 24px 48px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 64px);
+}
+/* 统一页面标题样式 */
+.page-title {
+  font-size: 22px;
+  margin: 0 0 24px;
+  color: #303133;
+  border-left: 4px solid #409EFF;
+  padding-left: 12px;
+}
+/* 表单外层卡片 */
+.form-card {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 36px;
+  border-radius: 12px;
+}
+/* 图片预览区域 */
 .img-box {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
 .img-item {
   width: 80px;
   height: 80px;
   position: relative;
+  border-radius: 6px;
+  overflow: hidden;
 }
 .img-item img {
   width: 100%;
@@ -125,6 +153,22 @@ const submit = async () => {
   top: 2px;
   right: 2px;
   background-color: #fff;
+  border-radius: 50%;
   cursor: pointer;
+}
+/* 上传提示文字 */
+.tip-text {
+  font-size: 13px;
+  color: #909399;
+  margin-top: 8px;
+}
+/* 提交按钮居中 */
+.submit-wrap {
+  text-align: center;
+  margin-top: 12px;
+}
+.submit-btn {
+  width: 240px;
+  border-radius: 8px;
 }
 </style>

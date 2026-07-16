@@ -1,6 +1,7 @@
 package com.trade.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.trade.domain.GoodsComment;
 import com.trade.domain.IdleGoods;
 import com.trade.domain.SysUser;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -134,5 +137,12 @@ public class GoodsCommentServiceImpl implements GoodsCommentService {
             result.add(vo);
         }
         return result;
+    }
+
+    // ========== 新增实现：查询当前买家自己的全部评价 ==========
+    @Override
+    public List<GoodsCommentVO> getMyCommentByBuyerId(Long buyerId) {
+        // 直接调用新增mapper方法，一次性返回带buyerInfo的VO
+        return commentMapper.selectMyCommentByBuyerId(buyerId);
     }
 }
