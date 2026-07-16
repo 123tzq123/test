@@ -40,7 +40,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import NavBar from '../../components/NavBar.vue'
 import { getSellerOrderApi } from '../../api/order'
-import { OrderItem } from '../../api/order'
+import { OrderItem } from '../../types'
 
 const router = useRouter()
 const orderList = ref<OrderItem[]>([])

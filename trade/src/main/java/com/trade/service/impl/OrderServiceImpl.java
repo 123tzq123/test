@@ -11,6 +11,7 @@ import com.trade.exception.GlobalException;
 import com.trade.mapper.IdleGoodsMapper;
 import com.trade.mapper.SysUserMapper;
 import com.trade.mapper.TradeOrderMapper;
+import com.trade.service.GoodsCommentService;
 import com.trade.service.OrderService;
 import com.trade.util.RedisUtil;
 import com.trade.vo.OrderVO;
@@ -29,6 +30,8 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
     private SysUserMapper userMapper;
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private GoodsCommentService goodsCommentService;
 
     @Override
     @Transactional
@@ -129,10 +132,14 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
             IdleGoods goods = goodsMapper.selectById(item.getGoodsId());
             vo.setGoodsTitle(goods.getTitle());
             vo.setGoodsImg(goods.getGoodsImg());
+            // 新增：判断订单是否评价
+            boolean commented = goodsCommentService.isOrderCommented(item.getId());
+            vo.setIsComment(commented);
             return vo;
         }).collect(Collectors.toList()));
         return voPage;
     }
+
     @Override
     public Page<OrderVO> getSellerOrder(Long sellerId, Integer pageNum, Integer pageSize) {
         Page<TradeOrder> page = new Page<>(pageNum, pageSize);
@@ -158,6 +165,7 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
             IdleGoods goods = goodsMapper.selectById(item.getGoodsId());
             vo.setGoodsTitle(goods.getTitle());
             vo.setGoodsImg(goods.getGoodsImg());
+            //卖家端不需要评价标记，可以不用设置isComment
             return vo;
         }).collect(Collectors.toList()));
         return voPage;

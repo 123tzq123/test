@@ -1,4 +1,5 @@
 package com.trade.vo;
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,6 +21,10 @@ public class OrderVO {
     //商品信息
     private String goodsTitle;
     private String goodsImg;
+
+    // =====================新增字段=====================
+    @TableField(exist = false)
+    private Boolean isComment; // true：已经评价；false：还未评价
 
     //拆分图片数组给前端
     public List<String> getImgList(){

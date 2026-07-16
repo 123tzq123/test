@@ -7,10 +7,12 @@ export interface GoodsItem {
   categoryId: number
   sellerName: string | null
   userId: number
+  avatar: string | null//补充头像字段
   status: number
   goodsImg: string | null
   imgList: string[] //所有图片数组
   coverImg: string | null //封面图片（第一张）
+  viewCount?: number
 }
 
 //分页通用结构 Mybatis‑Plus返回格式
@@ -28,13 +30,13 @@ export interface LoginData {
   username: string
 }
 
-//发布商品参数
 export interface GoodsPublishDTO {
-  title: string
-  price: number
-  content: string
   categoryId: number
-  goodsImg: string
+  title: string
+  content?: string
+  price: number
+  originalPrice?: number
+  imgList: string[] //替换原来的 goodsImg:string
 }
 
 //后端统一返回结果
@@ -81,9 +83,57 @@ export interface GoodsCategory {
   createTime: string
 }
 
-//收藏DTO：新增userId字段，前端传给后端
+//收藏DTO
 export interface CollectDTO {
   goodsId: number
   userId: number
+}
+
+export interface CommentPublishDTO {
+  orderId: number
+  score: number
+  content?: string
+  imgList: string[]
+}
+
+//商品评价返回项（商品详情页展示）
+export interface GoodsCommentVO {
+  id: number
+  goodsId: number
+  score: number
+  content: string | null
+  imgList: string[]
+  createTime: string
+  //评价者信息
+  buyerInfo: SysUser
+}
+
+//卖家主页返回数据
+export interface SellerHomeVO {
+  sellerInfo: SysUser
+  avgScore: number //平均分
+  goodsList: GoodsItem[] //卖家发布的商品列表
+}
+
+export interface OrderItem {
+  id: number
+  orderNo: string
+  goodsId: number
+  buyerId: number
+  sellerId: number
+  price: number
+  status: number
+  createTime: string
+  goodsTitle: string
+  goodsImg: string
+  coverImg: string | null
+  isComment: boolean //新增：true=已评价 false=未评价
+}
+
+export interface SellerGoodsCommentVO {
+  goodsId: number
+  goodsTitle: string
+  coverImg: string | null
+  commentList: GoodsCommentVO[]
 }
 

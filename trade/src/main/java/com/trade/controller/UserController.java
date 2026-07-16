@@ -36,6 +36,18 @@ public class UserController {
         String url = userService.updateAvatar(userId,file);
         return ResultVO.success(url);
     }
+
+    // ============ 新增通用文件上传接口（评价图片、发布商品图片使用）============
+    @PostMapping("/uploadFile")
+    public ResultVO<String> uploadFile(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
+        //校验登录状态，必须携带token
+        Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
+        //这里复用上传OSS的逻辑，但是不去修改用户头像，只返回图片URL
+        String url = userService.uploadFile(file);
+        return ResultVO.success(url);
+    }
+
+
     //获取当前登录用户信息
     @GetMapping("/getInfo")
     public ResultVO<SysUser> getUserInfo(HttpServletRequest request){

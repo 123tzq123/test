@@ -11,14 +11,12 @@
       </el-form-item>
       <el-form-item label="商品分类">
         <el-select v-model="publishForm.categoryId" placeholder="选择分类">
-          <!--后续你有分类数据再替换下拉选项，现在默认写死1也可以-->
           <el-option label="闲置数码" :value="1"></el-option>
           <el-option label="书籍资料" :value="2"></el-option>
           <el-option label="生活用品" :value="3"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="商品图片">
-        <!-- 预览已经上传的图片 -->
         <div class="img-box">
           <div class="img-item" v-for="(img, index) in imgList" :key="index">
             <img :src="img" alt="">
@@ -27,7 +25,6 @@
             </el-icon>
           </div>
         </div>
-        <!-- 图片上传组件，最多6张 -->
         <el-upload
           :http-request="uploadImg"
           list-type="picture-card"
@@ -59,13 +56,14 @@ import { GoodsPublishDTO } from '../../types'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-// 表单数据
+// 修改重点：移除 goodsImg，增加 imgList
 const publishForm = ref<GoodsPublishDTO>({
   title: '',
   price: 0,
   content: '',
   categoryId: 1,
-  goodsImg: ''
+  originalPrice: 0,
+  imgList: []
 })
 // 图片URL数组
 const imgList = ref<string[]>([])
@@ -95,8 +93,8 @@ const submit = async () => {
     ElMessage.warning('价格必须大于0');
     return
   }
-  // 将图片数组拼接成逗号分隔字符串传给后端
-  publishForm.value.goodsImg = imgList.value.join(",")
+  // 直接把图片数组赋值给表单里的 imgList，不再拼接字符串
+  publishForm.value.imgList = imgList.value
   const res = await publishGoodsApi(publishForm.value)
   if (res.code === 200) {
     ElMessage.success('发布成功')

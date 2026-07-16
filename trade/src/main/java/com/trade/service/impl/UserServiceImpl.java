@@ -25,7 +25,6 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
     @Resource
     private OSSUtil ossUtil;
 
-    //替换原来的 BCryptPasswordEncoder
     @Resource
     private PasswordUtil passwordUtil;
 
@@ -42,14 +41,11 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         user.setPassword(passwordUtil.encrypt(dto.getPassword()));
         user.setRole("user");
         user.setStatus(1);
-        //先插入数据库，此时id自动生成
         this.save(user);
 
-        //设置默认昵称和默认头像
         String defaultAvatar = "https://idle-goods-image.oss-cn-beijing.aliyuncs.com/image/db60d339f30644c7be92be00826ed038.jpg";
         user.setNickname("闲置用户");
         user.setAvatar(defaultAvatar);
-        //更新数据库
         this.updateById(user);
     }
 
@@ -61,7 +57,6 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         if (user == null) {
             throw new GlobalException(500, "用户名错误");
         }
-        //替换密码匹配逻辑
         if (!passwordUtil.matches(dto.getPassword(), user.getPassword())) {
             throw new GlobalException(500, "密码错误");
         }
@@ -85,7 +80,6 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         if(user == null){
             throw new GlobalException("用户不存在");
         }
-        //密码不返回前端
         user.setPassword(null);
         return user;
     }
@@ -99,6 +93,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         this.updateById(user);
     }
 
+    //更换头像：上传图片并且更新数据库里用户头像（原逻辑不变）
     @Override
     public String updateAvatar(Long userId, MultipartFile file) throws IOException {
         String url = ossUtil.uploadFile(file);
@@ -107,5 +102,12 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         user.setAvatar(url);
         this.updateById(user);
         return url;
+    }
+
+    //新增：通用上传方法，只上传文件到OSS，不修改数据库，用于评价图片、发布商品图片
+    @Override
+    public String uploadFile(MultipartFile file) throws IOException {
+        //只调用OSS工具类上传图片，完全不操作数据库
+        return ossUtil.uploadFile(file);
     }
 }

@@ -6,6 +6,7 @@ import com.trade.dto.GoodsPublishDTO;
 import com.trade.domain.IdleGoods;
 import com.trade.dto.GoodsQueryDTO;
 import com.trade.dto.GoodsUpdateDTO;
+import com.trade.exception.GlobalException;
 import com.trade.service.CategoryService;
 import com.trade.service.GoodsService;
 import com.trade.util.JwtUtil;
@@ -30,8 +31,10 @@ public class GoodsController {
     //发布闲置商品
     @PostMapping("/publish")
     public ResultVO<Void> publish(@Validated @RequestBody GoodsPublishDTO dto, HttpServletRequest request){
-        //从token解析登录用户id
-        Long userId = (Long)request.getAttribute(AttributeConst.LOGIN_USER_ID);
+        Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
+        if(userId == null){
+            throw new GlobalException(401,"登录失效，请重新登录");
+        }
         goodsService.publishGoods(dto,userId);
         return ResultVO.success(null);
     }
@@ -48,11 +51,11 @@ public class GoodsController {
      * 获取商品详情
      */
     @GetMapping("/detail/{goodsId}")
-    public ResultVO<GoodsVO> getGoodsDetail(@PathVariable Long goodsId){
-        GoodsVO goodsVO = goodsService.getDetail(goodsId);
+    public ResultVO<GoodsVO> getGoodsDetail(@PathVariable Long goodsId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
+        GoodsVO goodsVO = goodsService.getDetail(goodsId, userId);
         return ResultVO.success(goodsVO);
     }
-
     @GetMapping("/my")
     public ResultVO<Page<GoodsVO>> getMyGoods(Integer pageNum, Integer pageSize, HttpServletRequest request){
         Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);

@@ -24,7 +24,6 @@ import Cookies from 'js-cookie'
 import { loginApi } from '../../api/user'
 import { ElMessage, ElForm } from 'element-plus'
 
-//获取路由实例
 const router = useRouter()
 const loginRef = ref<InstanceType<typeof ElForm>>()
 const loginForm = ref({
@@ -32,16 +31,14 @@ const loginForm = ref({
   password: ''
 })
 
-//登录方法
 const handleLogin = async () => {
-  if(!loginForm.value.username || !loginForm.value.password){
+  if (!loginForm.value.username || !loginForm.value.password) {
     ElMessage.warning("用户名和密码不能为空")
     return
   }
   const res = await loginApi(loginForm.value)
   if (res.code === 200) {
     Cookies.set('token', res.data.token)
-    //新增：存储userId到Cookie
     Cookies.set('userId', String(res.data.userId))
     ElMessage.success('登录成功')
     router.push('/')
@@ -50,7 +47,6 @@ const handleLogin = async () => {
   }
 }
 
-//跳转到注册页面
 const goRegister = () => {
   router.push('/register')
 }

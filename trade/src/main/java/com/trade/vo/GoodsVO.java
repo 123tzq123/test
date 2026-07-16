@@ -1,6 +1,7 @@
 package com.trade.vo;
+
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.Data;
-import org.springframework.data.annotation.Transient;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -14,22 +15,23 @@ public class GoodsVO {
     private Long id;
     private String title;
     private BigDecimal price;
-    private String description;
+    private String content;
     private Long categoryId;
     private Long userId;
+    private Integer viewCount;
 
     //VO扩展字段，数据库不存在，页面展示用
     private String sellerName;
+    private String avatar; // 新增：卖家头像
     private String categoryName;
-    private Integer status; // 新增
-    //新增图片字段
+    private Integer status;
     private String goodsImg;
 
-    // transient注解不会存入数据库，仅后端给前端返回使用
-    @Transient
+    //数据库中不存在该字段，Mybatis‑Plus忽略此字段
+    @TableField(exist = false)
     private List<String> imgList;
 
-    @Transient
+    @TableField(exist = false)
     private String coverImg;
 
     //拆分图片数组给前端详情页

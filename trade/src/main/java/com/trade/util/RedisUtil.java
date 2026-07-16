@@ -17,7 +17,8 @@ public class RedisUtil {
     private StringRedisTemplate stringRedisTemplate;
 
     //浏览量自增，采用Hash结构
-    public Long incrHash(String hashKey, String field, int num) {
+    //原来：public Long incrHash(String hashKey, String field, int num)
+    public Long incrHash(String hashKey, String field, long num) {
         return stringRedisTemplate.opsForHash().increment(hashKey, field, num);
     }
 
@@ -74,5 +75,18 @@ public class RedisUtil {
     //删除key
     public void del(String key) {
         redisTemplate.delete(key);
+    }
+    // 判断key是否存在
+    public boolean hasKey(String key) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+    }
+
+    // 获取String‑Key对应的整数，不存在返回0
+    public Integer getInt(String key) {
+        Object obj = redisTemplate.opsForValue().get(key);
+        if(obj == null) {
+            return 0;
+        }
+        return Integer.parseInt(obj.toString());
     }
 }

@@ -19,4 +19,6 @@ public interface UserService extends IService<SysUser> {
     void updateUserInfo(Long userId, String nickname, String avatar);
     //修改头像
     String updateAvatar(Long userId, MultipartFile file) throws IOException;
+
+    String uploadFile(MultipartFile file) throws IOException;
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trade.mapper.IdleGoodsMapper">
+    <select id="getGoodsDetailWithSeller" resultType="com.trade.vo.GoodsVO">
+        SELECT ig.id,ig.title,ig.price,ig.content,ig.category_id categoryId,ig.user_id userId,
+        ig.status,ig.goods_img goodsImg, su.nickname sellerName, su.avatar
+        FROM idle_goods ig
+        LEFT JOIN sys_user su ON ig.user_id = su.id
+        WHERE ig.id = #{goodsId}
+    </select>
+</mapper>

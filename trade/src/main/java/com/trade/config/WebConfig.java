@@ -28,7 +28,6 @@ public class WebConfig implements WebMvcConfigurer {
                         "/file/upload"
                 );
     }
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 访问路径 /upload/** 映射到项目根目录upload文件夹

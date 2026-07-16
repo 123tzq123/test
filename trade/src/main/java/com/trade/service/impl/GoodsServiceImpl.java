@@ -17,18 +17,37 @@ import javax.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> implements GoodsService {
     @Resource
     private RedisUtil redisUtil;
 
+    // 全局Hash-key存放所有商品总浏览量
+    private static final String GOODS_VIEW_HASH = "goods:view:hash";
+    // 用户访问记录key前缀，30分钟内同一用户访问同一商品只计数一次
+    private static final String GOODS_USER_VIEW = "goods:userView:";
+    // 30分钟，单位秒
+    private static final long VIEW_EXPIRE_SECONDS = 30 * 60;
+
     @Override
     public void publishGoods(GoodsPublishDTO dto, Long userId) {
         IdleGoods goods = new IdleGoods();
-        BeanUtils.copyProperties(dto, goods);
+        goods.setTitle(dto.getTitle());
+        goods.setPrice(dto.getPrice());
+        goods.setCategoryId(dto.getCategoryId());
+        goods.setContent(dto.getContent());
+        goods.setOriginalPrice(dto.getOriginalPrice());
+        //手动设置发布者id
         goods.setUserId(userId);
-        goods.setStatus(1); //0待审核
+        goods.setStatus(1);
+        goods.setViewCount(0); //新建商品浏览量初始化为0
+        if (dto.getImgList() != null && dto.getImgList().size() > 0) {
+            goods.setGoodsImg(String.join(",", dto.getImgList()));
+        } else {
+            goods.setGoodsImg("");
+        }
         this.save(goods);
     }
 
@@ -49,10 +68,17 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
         voPage.setTotal(goodsPage.getTotal());
         voPage.setPages(goodsPage.getPages());
 
-        //批量转换 IdleGoods → GoodsVO
+        //批量转换 IdleGoods → GoodsVO，并赋值浏览量
         List<GoodsVO> voList = goodsPage.getRecords().stream().map(goods -> {
             GoodsVO vo = new GoodsVO();
-            BeanUtils.copyProperties(goods, vo); //自动复制名称相同属性，省去大量 set 代码
+            BeanUtils.copyProperties(goods, vo);
+            //从Redis读取浏览量
+            Long viewNum = redisUtil.getHashValue(GOODS_VIEW_HASH, goods.getId().toString());
+            if (viewNum > 0) {
+                vo.setViewCount(viewNum.intValue());
+            } else {
+                vo.setViewCount(goods.getViewCount() == null ? 0 : goods.getViewCount());
+            }
             return vo;
         }).collect(Collectors.toList());
         voPage.setRecords(voList);
@@ -66,37 +92,59 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
         this.updateById(goods);
     }
 
+    //修改后的浏览量增加方法：增加userId参数，实现30分钟去重统计
     @Override
-    public void addViewCount(Long goodsId) {
-        //Redis做浏览量缓存，key:goods:view:id
-        String hashKey = "goods:view:hash" + goodsId;
-        //使用Hash自增浏览量
-        redisUtil.incrHash(hashKey, goodsId.toString(), 1);
+    public void addViewCount(Long goodsId, Long userId) {
+        //未登录用户不统计浏览量
+        if (userId == null) {
+            return;
+        }
+        String userViewKey = GOODS_USER_VIEW + userId + ":" + goodsId;
+        //30分钟之内访问过，直接返回，浏览量不加
+        if (redisUtil.hasKey(userViewKey)) {
+            return;
+        }
+        //浏览量 +1，存入全局hash
+        redisUtil.incrHash(GOODS_VIEW_HASH, goodsId.toString(), 1);
+        //设置用户本次访问记录，30分钟过期
+        redisUtil.setEx(userViewKey, "1", VIEW_EXPIRE_SECONDS, TimeUnit.SECONDS);
+    }
+
+    //新增：获取商品浏览量
+    @Override
+    public Integer getViewCount(Long goodsId) {
+        // 获取Redis中还未同步到MySQL的新增浏览量
+        Long redisAddView = redisUtil.getHashValue(GOODS_VIEW_HASH, goodsId.toString());
+        // 获取数据库里面已经持久化的浏览量
+        IdleGoods goods = this.getById(goodsId);
+        Long dbView = goods.getViewCount() == null ? 0L : goods.getViewCount();
+        // 数据库值 + Redis增量 = 最终展示给前端的总浏览量
+        return (int) (dbView + redisAddView);
     }
 
     @Override
-    public GoodsVO getDetail(Long goodsId) {
-        IdleGoods idleGoods = this.getById(goodsId);
-        //商品不存在或者已经下架抛出异常
-        if(idleGoods == null || idleGoods.getStatus() != 1){
+    public GoodsVO getDetail(Long goodsId, Long userId) {
+        //直接拿到已经包含sellerName和avatar的VO对象，省去复制对象步骤
+        GoodsVO vo = baseMapper.getGoodsDetailWithSeller(goodsId);
+        if (vo == null || vo.getStatus() != 1) {
             throw new GlobalException(404, "商品不存在或已下架");
         }
-        //访问详情页，浏览量+1
-        addViewCount(goodsId);
-        GoodsVO vo = new GoodsVO();
-        BeanUtils.copyProperties(idleGoods,vo);
-        //后续联表查询给sellerName、categoryName赋值
+        //传入当前登录的userId
+        addViewCount(goodsId, userId);
+        //设置浏览量给VO
+        vo.setViewCount(getViewCount(goodsId));
+        //图片拆分逻辑不变，由GoodsVO里面getImgList()完成
         return vo;
     }
 
     @Override
     public Page<GoodsVO> getMyGoods(Integer pageNum, Integer pageSize, Long userId) {
-        Page<IdleGoods> page = new Page<>(pageNum,pageSize);
+        Page<IdleGoods> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<IdleGoods> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(IdleGoods::getUserId,userId);
+        wrapper.eq(IdleGoods::getUserId, userId);
         //只查询上架(1)和下架(0)的数据，排除逻辑删除‑1
-        wrapper.in(IdleGoods::getStatus, Arrays.asList(0,1));
-        Page<IdleGoods> goodsPage = this.page(page,wrapper);
+        wrapper.in(IdleGoods::getStatus, Arrays.asList(0, 1));
+        Page<IdleGoods> goodsPage = this.page(page, wrapper);
         Page<GoodsVO> voPage = new Page<>();
         voPage.setCurrent(goodsPage.getCurrent());
         voPage.setSize(goodsPage.getSize());
@@ -104,7 +152,13 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
         voPage.setPages(goodsPage.getPages());
         List<GoodsVO> voList = goodsPage.getRecords().stream().map(item -> {
             GoodsVO vo = new GoodsVO();
-            BeanUtils.copyProperties(item,vo);
+            BeanUtils.copyProperties(item, vo);
+            Long viewNum = redisUtil.getHashValue(GOODS_VIEW_HASH, item.getId().toString());
+            if (viewNum > 0) {
+                vo.setViewCount(viewNum.intValue());
+            } else {
+                vo.setViewCount(item.getViewCount() == null ? 0 : item.getViewCount());
+            }
             return vo;
         }).collect(Collectors.toList());
         voPage.setRecords(voList);
@@ -114,20 +168,21 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
     @Override
     public void offSale(Long goodsId, Long loginUserId) {
         IdleGoods goods = this.getById(goodsId);
-        if(goods == null){
+        if (goods == null) {
             throw new GlobalException(404, "商品不存在");
         }
         //判断是否是本人商品
-        if(!goods.getUserId().equals(loginUserId)){
+        if (!goods.getUserId().equals(loginUserId)) {
             throw new GlobalException(404, "无权操作");
         }
         goods.setStatus(0);
         this.updateById(goods);
     }
+
     @Override
     public void onSale(Long goodsId, Long userId) {
         IdleGoods goods = this.getById(goodsId);
-        if(!goods.getUserId().equals(userId)){
+        if (!goods.getUserId().equals(userId)) {
             throw new GlobalException(404, "无权操作");
         }
         goods.setStatus(1); //重新上架
@@ -138,11 +193,11 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
     @Override
     public void deleteGoods(Long goodsId, Long userId) {
         IdleGoods goods = this.getById(goodsId);
-        if(goods == null || !goods.getUserId().equals(userId)){
+        if (goods == null || !goods.getUserId().equals(userId)) {
             throw new RuntimeException("无权操作该商品");
         }
         //增加业务判断：商品处于上架状态不允许删除
-        if(goods.getStatus() == 1){
+        if (goods.getStatus() == 1) {
             throw new RuntimeException("商品上架状态，不能删除，请先下架！");
         }
         //物理删除，数据库中数据被真实删除
@@ -158,10 +213,10 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
     public void updateGoods(GoodsUpdateDTO dto, Long loginUserId) {
         IdleGoods goods = this.getById(dto.getId());
         //权限校验：只能修改自己发布的商品
-        if(!goods.getUserId().equals(loginUserId)){
-            throw new GlobalException(500,"你无权修改别人的商品");
+        if (!goods.getUserId().equals(loginUserId)) {
+            throw new GlobalException(500, "你无权修改别人的商品");
         }
-        BeanUtils.copyProperties(dto,goods);
+        BeanUtils.copyProperties(dto, goods);
         this.updateById(goods);
     }
 
@@ -186,7 +241,7 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
         //商品名称模糊查询，使用title字段
         if (queryDTO.getTitle() != null && !queryDTO.getTitle().trim().isEmpty()) {
             wrapper.like(IdleGoods::getTitle, queryDTO.getTitle().trim());
-            System.out.println("title: "+ queryDTO.getTitle());
+            System.out.println("title: " + queryDTO.getTitle());
         }
         //按创建时间降序
         wrapper.orderByDesc(IdleGoods::getCreateTime);

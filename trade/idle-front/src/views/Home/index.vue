@@ -33,6 +33,7 @@
           <img v-if="item.coverImg" :src="item.coverImg" class="goods-img" />
           <h3>{{ item.title }}</h3>
           <p>价格：{{ item.price ?? 0 }}元</p>
+          <p>浏览：{{ item.viewCount ?? 0 }}次</p>
           <el-button @click="router.push('/goods/' + item.id)">查看详情</el-button>
         </el-card>
       </el-col>
@@ -126,15 +127,27 @@ const resetCondition = () => {
   ElMessage.success('筛选条件已清空')
 }
 
+// onMounted(async () => {
+//   await loadCategory()
+//   await loadList()
+// })
 onMounted(async () => {
-  await loadCategory()
-  await loadList()
-})
+  await loadCategory();
+  const flag = localStorage.getItem("needRefreshGoods");
+  if (flag === "1") {
+    currentPage.value = 1;
+    await loadList();
+    localStorage.removeItem("needRefreshGoods");
+  } else {
+    await loadList();
+  }
+});
 
 onBeforeRouteUpdate(() => {
   currentPage.value = 1
   loadList()
 })
+
 </script>
 
 <style scoped>

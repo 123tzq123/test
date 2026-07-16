@@ -1,21 +1,21 @@
 import request from '../utils/request'
-import { Result, PageVO } from '../types'
+import { Result, PageVO, OrderItem } from '../types'
 
-//订单VO类型
-export interface OrderItem {
-  id: number
-  orderNo: string
-  goodsId: number
-  buyerId: number
-  sellerId: number
-  price: number
-  status: number
-  createTime: string
-  goodsTitle: string
-  goodsImg: string
-  coverImg: string
-  imgList: string[]
-}
+// //订单VO类型
+// export interface OrderItem {
+//   id: number
+//   orderNo: string
+//   goodsId: number
+//   buyerId: number
+//   sellerId: number
+//   price: number
+//   status: number
+//   createTime: string
+//   goodsTitle: string
+//   goodsImg: string
+//   coverImg: string
+//   imgList: string[]
+// }
 
 //创建订单
 export function createOrderApi(goodsId: number): Promise<Result<null>> {

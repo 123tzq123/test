@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trade.mapper.GoodsCommentMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO goods_comment(goods_id,order_id,buyer_id,seller_id,score,content,img_list)
+        VALUES(#{goodsId},#{orderId},#{buyerId},#{sellerId},#{score},#{content},#{imgList})
+    </insert>
+
+    <select id="getCommentByGoodsId" resultType="com.trade.vo.GoodsCommentVO">
+        SELECT
+        gc.id,gc.goods_id goodsId,gc.score,gc.content,gc.img_list imgList,gc.create_time createTime,
+        su.id buyerInfo_id,su.username buyerInfo_username,su.nickname buyerInfo_nickname,su.avatar buyerInfo_avatar
+        FROM goods_comment gc
+        LEFT JOIN sys_user su ON gc.buyer_id = su.id
+        WHERE gc.goods_id = #{goodsId}
+        ORDER BY gc.create_time DESC
+    </select>
+</mapper>

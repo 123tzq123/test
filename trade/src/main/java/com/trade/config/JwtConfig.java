@@ -37,12 +37,11 @@ public class JwtConfig implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        //JWT拦截器preHandle方法最前面添加
+        //放行OPTIONS预检请求
         if("OPTIONS".equalsIgnoreCase(request.getMethod())){
             return true;
         }
         String token = request.getHeader("token");
-        //进入这里代表不是放行接口，必须携带token
         if (token == null || token.isEmpty()) {
             response.setStatus(401);
             return false;

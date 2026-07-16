@@ -14,9 +14,20 @@
       </el-col>
       <el-col :span="14">
         <h2>{{ goods.title }}</h2>
+        <!--卖家头像+昵称 点击跳转卖家主页-->
+        <div class="seller-box" v-if="goods.sellerName"
+             @click="$router.push({path:'/seller',query:{sellerId:goods.userId}})">
+          <el-avatar :src="goods.avatar" size="60"></el-avatar>
+          <span class="seller-text">{{ goods.sellerName }}</span>
+        </div>
         <p class="price">售价：{{ goods.price }} 元</p>
         <p>卖家：{{ goods.sellerName }}</p>
         <p>商品描述：{{ goods.content }}</p>
+        <p>浏览量：{{ goods.viewCount ?? 0 }}次</p>
+
+        <!--新增：返回首页按钮-->
+        <el-button size="large" @click="backToHome">返回首页</el-button>
+
         <!--下单按钮-->
         <el-button
           v-if="goods.status === 1 && goods.userId !== loginUserId"
@@ -127,6 +138,12 @@ const goChat = () => {
   })
 }
 
+// 新增：点击返回首页，设置刷新标记
+const backToHome = () => {
+  localStorage.setItem("needRefreshGoods", "1");
+  router.push("/");
+}
+
 onMounted(() => {
   getDetail()
 })
@@ -146,5 +163,15 @@ onMounted(() => {
   font-size: 22px;
   color: red;
   margin: 10px 0;
+}
+.seller-box{
+  display:flex;
+  align-items:center;
+  margin:10px 0;
+  cursor: pointer;
+}
+.seller-text{
+  font-size:17px;
+  margin-left:10px;
 }
 </style>

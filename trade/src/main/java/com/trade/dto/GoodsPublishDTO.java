@@ -1,10 +1,10 @@
 package com.trade.dto;
 import lombok.Data;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class GoodsPublishDTO {
@@ -22,5 +22,7 @@ public class GoodsPublishDTO {
     private BigDecimal price;
 
     private BigDecimal originalPrice;
-    private String goodsImg;
+
+    // 新增：接收前端传过来的图片URL数组
+    private List<String> imgList;
 }

@@ -8,19 +8,23 @@ import com.trade.dto.GoodsUpdateDTO;
 import com.trade.vo.GoodsVO;
 
 public interface GoodsService extends IService<IdleGoods> {
-    //发布商品
     void publishGoods(GoodsPublishDTO dto, Long userId);
-    //分页查询商品（热门商品先查Redis）
+
     Page<GoodsVO> getGoodsList(Integer pageNum, Integer pageSize, Long categoryId);
-    //管理员审核商品
+
     void auditGoods(Long goodsId, Integer status);
-    //浏览量+1，Redis缓存
-    void addViewCount(Long goodsId);
-    //根据Id获取商品信息
-    GoodsVO getDetail(Long goodsId);
-    //我发布的商品
+
+    //更新方法签名，新增userId
+    void addViewCount(Long goodsId, Long userId);
+
+    //新增获取浏览量方法
+    Integer getViewCount(Long goodsId);
+
+    //新增入参userId
+    GoodsVO getDetail(Long goodsId, Long userId);
+
     Page<GoodsVO> getMyGoods(Integer pageNum, Integer pageSize, Long userId);
-    //下架我的商品
+
     void offSale(Long goodsId, Long loginUserId);
 
     void onSale(Long goodsId, Long userId);
