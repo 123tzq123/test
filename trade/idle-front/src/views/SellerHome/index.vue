@@ -45,13 +45,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import NavBar from '../../components/NavBar.vue'
 import { getSellerHomeApi, getSellerCommentApi } from '../../api/comment'
 import { GoodsItem, SysUser, SellerGoodsCommentVO, GoodsCommentVO, Result, SellerHomeVO } from '../../types'
 
 const route = useRoute()
-const router = useRouter()
+//const router = useRouter()
 const sellerId = Number(route.query.sellerId)
 const sellerInfo = ref<SysUser>({} as SysUser)
 const avgScore = ref(0)

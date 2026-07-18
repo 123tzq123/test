@@ -17,6 +17,6 @@ public interface GoodsCommentService {
 
     List<SellerGoodsCommentVO> getSellerAllComment(Long sellerId);
 
-    // ========== 新增：根据买家id查询自己发布的所有评价 ==========
+    // 根据买家id查询自己发布的所有评价
     List<GoodsCommentVO> getMyCommentByBuyerId(Long buyerId);
 }

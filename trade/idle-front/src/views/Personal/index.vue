@@ -84,7 +84,7 @@
 import { ref,onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete,Plus } from '@element-plus/icons-vue'
-import Cookies from 'js-cookie'
+//import Cookies from 'js-cookie'
 import NavBar from '../../components/NavBar.vue'
 import { getMyGoodsApi,offSaleApi,onSaleApi,deleteGoodsApi,getGoodsByIdApi,updateGoodsApi,uploadImgApi } from '../../api/goods'
 import { GoodsItem, GoodsUpdateDTO } from '../../types'
@@ -93,8 +93,8 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const goodsList = ref<GoodsItem[]>([])
 const editDialogVisible = ref(false)
-let temp = Number(Cookies.get("userId") ?? 0)
-const loginUserId = isNaN(temp) ? 0 : temp
+// let temp = Number(Cookies.get("userId") ?? 0)
+// const loginUserId = isNaN(temp) ? 0 : temp
 
 //编辑表单
 const editForm = ref<GoodsUpdateDTO>({

@@ -22,7 +22,6 @@ public class OrderVO {
     private String goodsTitle;
     private String goodsImg;
 
-    // =====================新增字段=====================
     @TableField(exist = false)
     private Boolean isComment; // true：已经评价；false：还未评价
 

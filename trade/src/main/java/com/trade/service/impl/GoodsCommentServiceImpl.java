@@ -75,8 +75,6 @@ public class GoodsCommentServiceImpl implements GoodsCommentService {
             if (StringUtils.hasText(vo.getImgList())) {
                 List<String> imgs = Arrays.stream(vo.getImgList().split(","))
                         .collect(Collectors.toList());
-                //新增一个临时字段或者新建DTO，不要在这个VO里修改；
-                //方案：新建一个VO或者创建单独的属性存放解析后的图片数组
                 vo.setImgListStr(imgs);
             }
         }
@@ -139,7 +137,7 @@ public class GoodsCommentServiceImpl implements GoodsCommentService {
         return result;
     }
 
-    // ========== 新增实现：查询当前买家自己的全部评价 ==========
+    // 查询当前买家自己的全部评价
     @Override
     public List<GoodsCommentVO> getMyCommentByBuyerId(Long buyerId) {
         // 直接调用新增mapper方法，一次性返回带buyerInfo的VO

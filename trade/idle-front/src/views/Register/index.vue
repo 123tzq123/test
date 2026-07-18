@@ -27,7 +27,6 @@ import { useRouter } from 'vue-router'
 import { registerApi } from '../../api/user'
 import { ElMessage, ElForm } from 'element-plus'
 const router = useRouter()
-const regRef = ref<InstanceType<typeof ElForm>>()
 const regForm = ref({
   username: '',
   password: '',

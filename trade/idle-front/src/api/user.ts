@@ -1,10 +1,10 @@
 import request from '../utils/request'
 import { Result, LoginData, UserLoginDTO } from '../types'
 
-interface LoginForm {
-  username: string
-  password: string
-}
+// interface LoginForm {
+//   username: string
+//   password: string
+// }
 
 //登录接口
 export function loginApi(data: UserLoginDTO): Promise<Result<LoginData>> {
@@ -24,7 +24,6 @@ export function registerApi(data: UserLoginDTO): Promise<Result<null>> {
   })
 }
 
-// ============下面是新增的接口============
 //获取当前登录用户信息
 export function getUserInfoApi() {
   return request({

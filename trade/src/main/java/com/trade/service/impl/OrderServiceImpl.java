@@ -132,7 +132,7 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
             IdleGoods goods = goodsMapper.selectById(item.getGoodsId());
             vo.setGoodsTitle(goods.getTitle());
             vo.setGoodsImg(goods.getGoodsImg());
-            // 新增：判断订单是否评价
+            // 判断订单是否评价
             boolean commented = goodsCommentService.isOrderCommented(item.getId());
             vo.setIsComment(commented);
             return vo;

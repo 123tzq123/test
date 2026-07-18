@@ -15,11 +15,4 @@ public class OSSConfig {
     private String accessKeyId;
     private String accessKeySecret;
     private String bucketName;
-
-//    @Bean
-//    public OSS ossClient(){
-//        //正确传参方式
-//        return OSSClientBuilder.create()
-//                .build(endpoint, accessKeyId, accessKeySecret);
-//    }
 }

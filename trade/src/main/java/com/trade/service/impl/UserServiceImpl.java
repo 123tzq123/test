@@ -42,7 +42,6 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         user.setRole("user");
         user.setStatus(1);
         this.save(user);
-
         String defaultAvatar = "https://idle-goods-image.oss-cn-beijing.aliyuncs.com/image/db60d339f30644c7be92be00826ed038.jpg";
         user.setNickname("闲置用户");
         user.setAvatar(defaultAvatar);
@@ -104,7 +103,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         return url;
     }
 
-    //新增：通用上传方法，只上传文件到OSS，不修改数据库，用于评价图片、发布商品图片
+    //通用上传方法，只上传文件到OSS，不修改数据库，用于评价图片、发布商品图片
     @Override
     public String uploadFile(MultipartFile file) throws IOException {
         //只调用OSS工具类上传图片，完全不操作数据库

@@ -40,7 +40,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/Personal/index.vue'),
     meta: { requiresAuth: true }
   },
-  // ========== 新增：我的发布 /personal/goods ==========
+  // 我的发布
   {
     path: '/personal/goods',
     name: 'MyGoods',
@@ -54,28 +54,28 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/Personal/Order.vue'),
     meta: { requiresAuth: true }
   },
-  // ========== 修复卖出订单路径：改为 /personal/sell 和导航跳转一致 ==========
+  // 卖出订单
   {
     path: '/personal/sell',
     name: 'SellerOrder',
     component: () => import('../views/Personal/SellerOrder.vue'),
     meta: { requiresAuth: true }
   },
-  // ========== 新增：过往评价 ==========
+  // 过往评价
   {
     path: '/personal/comment',
     name: 'MyComment',
     component: () => import('../views/Personal/Comment.vue'),
     meta: { requiresAuth: true }
   },
-  // ========== 新增：收到评价 ==========
+  // 收到评价
   {
     path: '/personal/receiveComment',
     name: 'ReceiveComment',
     component: () => import('../views/Personal/ReceiveComment.vue'),
     meta: { requiresAuth: true }
   },
-  // ========== 新增：我的主页（个人资料设置） ==========
+  // 我的主页（个人资料设置） 
   {
     path: '/personal/home',
     name: 'MyHome',

@@ -32,7 +32,6 @@ import { ref, onMounted } from 'vue'
 import Cookies from 'js-cookie'
 import NavBar from '../../components/NavBar.vue'
 import { getSellerCommentApi } from '../../api/comment'
-import { SellerGoodsCommentVO } from '../../types'
 
 const receiveCommentList = ref<any[]>([])
 const loginUserId = Number(Cookies.get('userId') || '0')

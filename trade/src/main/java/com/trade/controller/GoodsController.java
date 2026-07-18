@@ -70,7 +70,7 @@ public class GoodsController {
         return ResultVO.success(null);
     }
 
-    //新增：商品上架
+    //商品上架
     @PutMapping("/onSale/{goodsId}")
     public ResultVO<Void> onSale(@PathVariable Long goodsId, HttpServletRequest request){
         Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);
@@ -78,7 +78,7 @@ public class GoodsController {
         return ResultVO.success(null);
     }
 
-    //新增：商品删除（逻辑删除）
+    //商品删除（物理删除）
     @DeleteMapping("/delete/{goodsId}")
     public ResultVO<Void> deleteGoods(@PathVariable Long goodsId, HttpServletRequest request){
         Long userId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);

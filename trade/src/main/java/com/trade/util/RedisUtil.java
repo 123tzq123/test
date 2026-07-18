@@ -17,7 +17,6 @@ public class RedisUtil {
     private StringRedisTemplate stringRedisTemplate;
 
     //浏览量自增，采用Hash结构
-    //原来：public Long incrHash(String hashKey, String field, int num)
     public Long incrHash(String hashKey, String field, long num) {
         return stringRedisTemplate.opsForHash().increment(hashKey, field, num);
     }

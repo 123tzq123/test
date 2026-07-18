@@ -34,7 +34,7 @@ export function getSellerCommentApi(sellerId: number): Promise<Result<SellerGood
   })
 }
 
-// ========== 新增：获取当前买家自己发布的所有评价（过往评价页面） ==========
+// 获取当前买家自己发布的所有评价（过往评价页面）
 export function getMyCommentApi(): Promise<Result<GoodsCommentVO[]>> {
   return request({
     method: 'get',

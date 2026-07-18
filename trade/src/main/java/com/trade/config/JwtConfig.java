@@ -1,22 +1,3 @@
-//package com.trade.config;
-//
-//import com.trade.util.JwtUtil;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-//import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-//import javax.annotation.Resource;
-//
-//@Configuration
-//public class JwtConfig implements WebMvcConfigurer {
-//    @Resource
-//    private JwtUtil jwtUtil;
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(jwtUtil)
-//                .addPathPatterns("/**")
-//                .excludePathPatterns("/user/login","/user/register","/goods/list");
-//    }
-//}
 package com.trade.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

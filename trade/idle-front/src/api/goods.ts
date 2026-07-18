@@ -1,7 +1,7 @@
 import request from '../utils/request'
 import { Result, GoodsItem, PageVO, GoodsPublishDTO, GoodsUpdateDTO, GoodsCategory, CollectDTO } from '../types'
 
-//原来简单分页（保留不动，给个人中心页面使用）
+//原来简单分页（给个人中心页面使用）
 export function getGoodsListApi(pageNum = 1, pageSize = 8, categoryId?: number): Promise<Result<PageVO<GoodsItem>>> {
   return request({
     method: 'get',
@@ -14,7 +14,6 @@ export function getGoodsListApi(pageNum = 1, pageSize = 8, categoryId?: number):
   })
 }
 
-// ============新增接口开始============
 //首页多条件筛选商品（分类+价格区间+商品名称搜索）
 export function searchGoodsApi(data:{
   categoryId?: number|null
@@ -38,7 +37,6 @@ export function getCategoryListApi(): Promise<Result<GoodsCategory[]>> {
     url: '/goods/category/list'
   })
 }
-// ============新增接口结束============
 
 //获取商品详情
 export function getGoodsDetailApi(goodsId: number): Promise<Result<GoodsItem>> {
@@ -124,7 +122,6 @@ export function changeCollectApi(data: CollectDTO): Promise<Result<string>> {
     data
   })
 }
-//获取我的收藏列表
 //获取我的收藏列表
 export function getMyCollectApi():Promise<Result<GoodsItem[]>>{
   return request({

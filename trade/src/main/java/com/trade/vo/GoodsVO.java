@@ -22,7 +22,7 @@ public class GoodsVO {
 
     //VO扩展字段，数据库不存在，页面展示用
     private String sellerName;
-    private String avatar; // 新增：卖家头像
+    private String avatar; // 卖家头像
     private String categoryName;
     private Integer status;
     private String goodsImg;

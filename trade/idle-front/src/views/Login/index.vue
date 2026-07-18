@@ -22,7 +22,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Cookies from 'js-cookie'
-// 新增导入获取用户信息接口
+// 导入获取用户信息接口
 import { loginApi, getUserInfoApi } from '../../api/user'
 import { ElMessage, ElForm } from 'element-plus'
 
@@ -43,7 +43,7 @@ const handleLogin = async () => {
     Cookies.set('token', res.data.token)
     Cookies.set('userId', String(res.data.userId))
 
-    // ========== 新增：拉取用户信息，存储头像Cookie ==========
+    // 拉取用户信息，存储头像Cookie 
     const userInfoRes = await getUserInfoApi()
     // 兜底：头像为null时存空字符串
     const avatarUrl = userInfoRes.data.avatar ?? ''

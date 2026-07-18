@@ -30,7 +30,7 @@ public class GoodsMessageServiceImpl extends ServiceImpl<GoodsMessageMapper, Goo
     public Page<GoodsMessage> getHistoryMsg(Long goodsId, Long selfId, Long otherId, Integer pageNum, Integer pageSize) {
         Page<GoodsMessage> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<GoodsMessage> wrapper = new LambdaQueryWrapper<>();
-        // 关键：括号包裹双向聊天条件，之后再并且goodsId相等
+        // 括号包裹双向聊天条件，之后再并且goodsId相等
         wrapper.and(w -> w.eq(GoodsMessage::getFromUserId, selfId).eq(GoodsMessage::getToUserId, otherId)
                         .or().eq(GoodsMessage::getFromUserId, otherId).eq(GoodsMessage::getToUserId, selfId))
                 .eq(GoodsMessage::getGoodsId, goodsId)

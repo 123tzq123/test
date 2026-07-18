@@ -23,6 +23,6 @@ public class GoodsPublishDTO {
 
     private BigDecimal originalPrice;
 
-    // 新增：接收前端传过来的图片URL数组
+    // 接收前端传过来的图片URL数组
     private List<String> imgList;
 }

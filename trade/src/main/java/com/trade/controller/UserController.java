@@ -37,7 +37,7 @@ public class UserController {
         return ResultVO.success(url);
     }
 
-    // ============ 新增通用文件上传接口（评价图片、发布商品图片使用）============
+    // 通用文件上传接口（评价图片、发布商品图片使用）
     @PostMapping("/uploadFile")
     public ResultVO<String> uploadFile(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
         //校验登录状态，必须携带token

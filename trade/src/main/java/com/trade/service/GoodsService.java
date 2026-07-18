@@ -17,10 +17,10 @@ public interface GoodsService extends IService<IdleGoods> {
     //更新方法签名，新增userId
     void addViewCount(Long goodsId, Long userId);
 
-    //新增获取浏览量方法
+    //获取浏览量方法
     Integer getViewCount(Long goodsId);
 
-    //新增入参userId
+    //入参userId
     GoodsVO getDetail(Long goodsId, Long userId);
 
     Page<GoodsVO> getMyGoods(Integer pageNum, Integer pageSize, Long userId);
