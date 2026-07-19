@@ -12,30 +12,26 @@
         </el-form-item>
         <el-form-item label="商品分类">
           <el-select v-model="publishForm.categoryId" placeholder="选择分类" size="large">
-            <el-option label="闲置数码" :value="1"></el-option>
-            <el-option label="书籍资料" :value="2"></el-option>
-            <el-option label="生活用品" :value="3"></el-option>
+            <el-option label="电子产品" :value="1"></el-option>
+            <el-option label="图书教材" :value="2"></el-option>
+            <el-option label="衣物鞋帽" :value="3"></el-option>
+            <el-option label="生活用品" :value="4"></el-option>
+            <el-option label="运动器材" :value="5"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="商品图片">
-          <div class="img-box">
-            <div class="img-item" v-for="(img, index) in imgList" :key="index">
-              <img :src="img" alt="">
-              <el-icon class="del-icon" @click="deleteImg(index)">
-                <Delete />
-              </el-icon>
-            </div>
-          </div>
           <el-upload
             :http-request="uploadImg"
             list-type="picture-card"
-            :limit="6"
+            :limit="5"
+            :file-list="fileList"
+            @remove="handleUploadRemove"
           >
             <template #default>
               <el-icon><Plus /></el-icon>
             </template>
           </el-upload>
-          <div class="tip-text">最多上传6张图片，第一张为商品封面</div>
+          <div class="tip-text">最多上传5张图片，第一张为商品封面</div>
         </el-form-item>
         <el-form-item label="商品描述">
           <el-input v-model="publishForm.content" type="textarea" rows="4" size="large" placeholder="描述商品成色、使用时长、配件等信息"></el-input>
@@ -60,7 +56,6 @@ import { GoodsPublishDTO } from '../../types'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-// 修改重点：移除 goodsImg，增加 imgList
 const publishForm = ref<GoodsPublishDTO>({
   title: '',
   price: 0,
@@ -69,26 +64,35 @@ const publishForm = ref<GoodsPublishDTO>({
   originalPrice: 0,
   imgList: []
 })
-// 图片URL数组
+// 业务存储图片URL数组
 const imgList = ref<string[]>([])
+// el-upload 内置文件列表
+const fileList = ref<any[]>([])
 
-// 上传图片
+// 自定义上传接口
 const uploadImg = async (options: { file: File }) => {
   const res = await uploadImgApi(options.file)
   if (res.code === 200) {
-    imgList.value.push(res.data)
+    const url = res.data
+    // 同步业务数组
+    imgList.value.push(url)
+    // 同步upload组件预览列表
+    fileList.value.push({
+      url: url
+    })
     ElMessage.success('图片上传成功')
   }
 }
 
-// 删除选中的某一张图片
-const deleteImg = (index: number) => {
-  imgList.value.splice(index, 1)
+// el-upload 自带删除回调（删除时同步清理数组）
+const handleUploadRemove = (file: any) => {
+  const delUrl = file.url
+  // 过滤删除对应图片
+  imgList.value = imgList.value.filter(item => item !== delUrl)
 }
 
 // 提交发布商品
 const submit = async () => {
-  //简单前端校验
   if (!publishForm.value.title) {
     ElMessage.warning('标题不能为空');
     return
@@ -97,7 +101,6 @@ const submit = async () => {
     ElMessage.warning('价格必须大于0');
     return
   }
-  // 直接把图片数组赋值给表单里的 imgList，不再拼接字符串
   publishForm.value.imgList = imgList.value
   const res = await publishGoodsApi(publishForm.value)
   if (res.code === 200) {
@@ -128,33 +131,6 @@ const submit = async () => {
   margin: 0 auto;
   padding: 36px;
   border-radius: 12px;
-}
-/* 图片预览区域 */
-.img-box {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-.img-item {
-  width: 80px;
-  height: 80px;
-  position: relative;
-  border-radius: 6px;
-  overflow: hidden;
-}
-.img-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.del-icon {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  background-color: #fff;
-  border-radius: 50%;
-  cursor: pointer;
 }
 /* 上传提示文字 */
 .tip-text {

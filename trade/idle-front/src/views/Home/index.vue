@@ -31,7 +31,13 @@
     <el-row :gutter="24" class="goods-grid">
       <el-col :span="6" v-for="item in goodsList" :key="item.id">
         <el-card shadow="hover" class="goods-card">
-          <img v-if="item.coverImg" :src="item.coverImg" class="goods-img" />
+          <img 
+          v-if="item.coverImg ?? ''" 
+          :src="item.coverImg ?? ''" 
+          class="goods-img" 
+          alt="商品封面"
+          />
+          <div v-else class="empty-img">暂无商品图</div>
           <h3 class="goods-title">{{ item.title }}</h3>
           <p class="goods-price">¥{{ item.price ?? 0 }}</p>
           <p class="view-text">浏览 {{ item.viewCount ?? 0 }} 次</p>
@@ -111,9 +117,20 @@ const loadList = async () => {
     pageNum: currentPage.value,
     pageSize: query.value.pageSize
   }
-
   const res = await searchGoodsApi(sendData) as unknown as Result<PageVO<GoodsItem>>
-  goodsList.value = res.data.records
+  // 核心：拆分goodsImg逗号字符串，取第一张作为coverImg
+  goodsList.value = res.data.records.map(item => {
+    let coverImg = ''
+    if (item.goodsImg && item.goodsImg.trim() !== '') {
+      // 按逗号分割，取第一个图片链接
+      const imgArr = item.goodsImg.split(',').filter(s => s.trim())
+      coverImg = imgArr.length > 0 ? imgArr[0] : ''
+    }
+    return {
+      ...item,
+      coverImg: coverImg
+    }
+  })
   total.value = res.data.total
 }
 
@@ -196,11 +213,24 @@ onBeforeRouteUpdate(() => {
   border-radius: 12px;
   overflow: hidden;
 }
+/* 统一和卖家主页商品封面样式 */
 .goods-img {
   width: 100%;
-  height: 180px;
+  height: 140px;
   object-fit: cover;
   border-radius: 8px;
+}
+/* 无图片兜底样式，和页面视觉统一 */
+.empty-img {
+  width: 100%;
+  height: 140px;
+  background: #f0f2f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #909399;
+  font-size: 14;
 }
 .goods-title {
   font-size: 16px;

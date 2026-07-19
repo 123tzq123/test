@@ -2,11 +2,6 @@
   <NavBar></NavBar>
   <div class="page-wrap">
     <h2 class="page-title">我的发布</h2>
-    <!-- 快捷跳转按钮 -->
-    <div class="btn-nav-group">
-      <el-button type="primary" size="large" @click="$router.push('/personal/order')">我的订单</el-button>
-      <el-button type="warning" size="large" @click="$router.push('/personal/collect')">我的收藏</el-button>
-    </div>
 
     <el-card class="table-card">
       <el-table :data="goodsList" border stripe>

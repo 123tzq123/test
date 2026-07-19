@@ -51,15 +51,17 @@ const getUserInfo = async () => {
   form.value.avatar = res.data.avatar
 }
 
-//头像上传成功
+//头像上传成功，同步更新Cookie
 const onAvatarSuccess = (res: any) => {
   form.value.avatar = res.data
+  Cookies.set('avatar', res.data)
   ElMessage.success("头像上传完毕，请点击保存")
 }
 
-//提交修改
+//提交修改，同步最新头像到Cookie
 const submit = async () => {
   await updateUserInfoApi(form.value)
+  Cookies.set('avatar', form.value.avatar)
   ElMessage.success("个人信息修改成功！")
 }
 

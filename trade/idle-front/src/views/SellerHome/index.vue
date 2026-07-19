@@ -4,21 +4,27 @@
     <h2 class="page-title">卖家主页</h2>
     <!-- 卖家头部信息卡片 -->
     <el-card class="seller-header-card">
-      <div class="seller-header">
-        <el-avatar :src="sellerInfo.avatar" size="80"></el-avatar>
-        <div class="seller-text">
-          <h2>{{ sellerInfo.nickname }}</h2>
-          <p class="score-text">综合评分：{{ avgScore }} 分</p>
-        </div>
-      </div>
-    </el-card>
+  <div class="seller-header">
+    <el-avatar :src="sellerInfo.avatar || ''" size="80"></el-avatar>
+    <div class="seller-text">
+      <h2>{{ sellerInfo.nickname }}</h2>
+      <p class="score-text">综合评分：{{ avgScore }} 分</p>
+    </div>
+  </div>
+</el-card>
 
     <h3 class="sub-title">他发布的闲置商品</h3>
     <div class="goods-wrap">
       <el-card class="goods-item-card" v-for="item in goodsList" :key="item.id">
-        <!-- 商品基础信息 -->
+        <!-- 商品封面：和首页逻辑完全统一 -->
         <div class="goods-main">
-          <img :src="item.coverImg ?? ''" class="goods-img" alt="">
+          <img 
+            v-if="item.coverImg ?? ''" 
+            :src="item.coverImg || ''" 
+            class="goods-img" 
+            alt=""
+          />
+          <div v-else class="empty-img">暂无商品图</div>
           <div class="goods-info">
             <h4 class="goods-title">{{ item.title }}</h4>
             <p class="goods-price">¥{{ item.price }}</p>
@@ -27,14 +33,21 @@
           </div>
         </div>
 
-        <!-- 商品买家评价区域 -->
+        <!-- 商品买家评价：拆分imgList逗号串，只渲染有效图片，无多余error/cross属性 -->
         <div class="comment-block" v-if="commentMap.get(item.id) && commentMap.get(item.id)!.length > 0">
           <h4 class="comment-title">买家评价</h4>
           <div class="comment-item" v-for="c in commentMap.get(item.id)" :key="c.id">
             <el-rate v-model="c.score" disabled size="small"></el-rate>
             <p class="comment-content">评价内容：{{ c.content }}</p>
             <div class="img-box">
-              <img v-for="img in c.imgList" :key="img" :src="img" class="comment-img" alt="">
+              <!-- 拆分字符串，过滤空链接，只循环有效图片 -->
+              <template 
+                v-for="img in splitImgStr(c.imgList)" 
+                :key="img"
+              >
+                <img class="comment-img" :src="img" alt="评价图"/>
+              </template>
+              <span v-if="splitImgStr(c.imgList).length === 0">无评价图片</span>
             </div>
           </div>
         </div>
@@ -51,22 +64,42 @@ import { getSellerHomeApi, getSellerCommentApi } from '../../api/comment'
 import { GoodsItem, SysUser, SellerGoodsCommentVO, GoodsCommentVO, Result, SellerHomeVO } from '../../types'
 
 const route = useRoute()
-//const router = useRouter()
 const sellerId = Number(route.query.sellerId)
 const sellerInfo = ref<SysUser>({} as SysUser)
 const avgScore = ref(0)
 const goodsList = ref<GoodsItem[]>([])
 const commentMap = ref<Map<number, GoodsCommentVO[]>>(new Map())
 
+// 统一图片拆分工具函数（兼容 string / string[] / null / undefined）
+const splitImgStr = (source: string | string[] | null | undefined): string[] => {
+  if (Array.isArray(source)) {
+    return source.filter(url => url && url.trim())
+  }
+  if (!source || source.trim() === '') return []
+  return source.split(',').filter(url => url.trim())
+}
+
 const loadData = async () => {
-  // 显式指定返回类型
+  // 加载卖家商品，拆分goodsImg生成coverImg，和Home首页逻辑完全一致
   const res: Result<SellerHomeVO> = await getSellerHomeApi(sellerId)
   if (res.code === 200) {
     sellerInfo.value = res.data.sellerInfo
     avgScore.value = Number(res.data.avgScore)
-    goodsList.value = res.data.goodsList
+    // 修复1：字段 goods → goodsList
+    // 修复2：给item标注 GoodsItem 类型，消除any隐式类型报错
+    goodsList.value = res.data.goodsList.map((item: GoodsItem) => {
+      let coverImg = ''
+      if (item.goodsImg && item.goodsImg.trim() !== '') {
+        const imgArr = item.goodsImg.split(',').filter(s => s.trim())
+        coverImg = imgArr.length > 0 ? imgArr[0] : ''
+      }
+      return {
+        ...item,
+        coverImg: coverImg
+      }
+    })
   }
-  // 指定评论接口返回类型
+  // 加载评价数据
   const commentRes: Result<SellerGoodsCommentVO[]> = await getSellerCommentApi(sellerId)
   if (commentRes.code === 200) {
     const map = new Map<number, GoodsCommentVO[]>()
@@ -143,6 +176,17 @@ onMounted(() => {
   height: 140px;
   object-fit: cover;
   border-radius: 8px;
+}
+.empty-img {
+  width: 140px;
+  height: 140px;
+  background: #f0f2f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #909399;
+  font-size: 14px;
 }
 .goods-info {
   flex: 1;

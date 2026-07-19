@@ -12,7 +12,16 @@
     <el-row :gutter="24" class="goods-grid" v-else>
       <el-col :span="6" v-for="item in collectList" :key="item.id">
         <el-card shadow="hover" class="goods-card">
-          <img v-if="item.coverImg" :src="item.coverImg" class="goods-img" />
+          <!-- 图片加载失败兜底处理 -->
+            <img 
+              v-if="item.coverImg ?? ''" 
+              :src="item.coverImg ?? ''" 
+              class="goods-img" 
+              alt="商品封面"
+
+            />
+          <div v-else class="empty-img">暂无商品图</div>
+          
           <h3 class="goods-title">{{ item.title }}</h3>
           <p class="goods-price">¥{{ item.price ?? 0 }}</p>
           <p class="view-text">浏览 {{ item.viewCount ?? 0 }} 次</p>
@@ -27,15 +36,36 @@
 import { ref, onMounted } from 'vue'
 import NavBar from '../../components/NavBar.vue'
 import { getMyCollectApi } from '../../api/goods'
-import { GoodsItem } from '../../types'
+import { GoodsItem, Result } from '../../types'
 
 const collectList = ref<GoodsItem[]>([])
+// 记录加载404失败的商品ID
+const errorImgIds = ref<number[]>([])
+
+// 图片加载失败回调
+const handleImgError = (goodsId: number) => {
+  if (!errorImgIds.value.includes(goodsId)) {
+    errorImgIds.value.push(goodsId)
+  }
+}
 
 //加载我的收藏列表
 const loadCollect = async () => {
-  const res = await getMyCollectApi()
+  // 接口直接返回商品数组，不是分页对象，删除PageVO包装
+  const res = await getMyCollectApi() as unknown as Result<GoodsItem[]>
   if (res.code === 200) {
-    collectList.value = res.data
+    // 拆分goodsImg逗号字符串，取第一张赋值coverImg
+    collectList.value = res.data.map(item => {
+      let coverImg = ''
+      if (item.goodsImg && item.goodsImg.trim() !== '') {
+        const imgArr = item.goodsImg.split(',').filter(s => s.trim())
+        coverImg = imgArr.length > 0 ? imgArr[0] : ''
+      }
+      return {
+        ...item,
+        coverImg: coverImg
+      }
+    })
   }
 }
 
@@ -79,11 +109,24 @@ onMounted(() => {
   border-radius: 12px;
   overflow: hidden;
 }
+/* 和首页、卖家主页图片尺寸统一 */
 .goods-img {
   width: 100%;
-  height: 180px;
+  height: 140px;
   object-fit: cover;
   border-radius: 8px;
+}
+/* 无图/图片404占位样式 */
+.empty-img {
+  width: 100%;
+  height: 140px;
+  background: #f0f2f5;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #909399;
+  font-size: 14px;
 }
 .goods-title {
   font-size: 16px;

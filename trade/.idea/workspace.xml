@@ -5,34 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b54bb86-dd60-412b-a71d-ce8a983be624" name="Changes" comment="test02">
-      <change beforePath="$PROJECT_DIR$/idle-front/src/api/comment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/api/comment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/idle-front/src/api/goods.ts" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/api/goods.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/idle-front/src/api/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/idle-front/src/api/order.ts" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/api/order.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/idle-front/src/api/user.ts" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/api/user.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/idle-front/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/router/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Login/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Login/index.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Personal/ReceiveComment.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Personal/ReceiveComment.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/components/NavBar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/components/NavBar.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Home/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Home/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Personal/Comment.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Personal/Comment.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Personal/MyCollect.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Personal/MyCollect.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Personal/UserSetting/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Personal/UserSetting/index.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/idle-front/src/views/Personal/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Personal/index.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Register/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Register/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Publish/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Publish/index.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/idle-front/src/views/SellerHome/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/SellerHome/index.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/config/JwtConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/config/JwtConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/config/OSSConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/config/OSSConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/controller/GoodsCommentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/controller/GoodsCommentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/controller/GoodsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/controller/GoodsController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/dto/GoodsPublishDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/dto/GoodsPublishDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/service/GoodsCommentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/service/GoodsCommentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/service/GoodsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/service/GoodsService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/GoodsCommentServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/GoodsCommentServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/GoodsMessageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/GoodsMessageServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/OrderServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/OrderServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/controller/GoodsCollectController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/controller/GoodsCollectController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/GoodsServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/GoodsServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/task/OrderTask.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/task/OrderTask.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/util/RedisUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/util/RedisUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/vo/GoodsVO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/vo/GoodsVO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/vo/OrderVO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/vo/OrderVO.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

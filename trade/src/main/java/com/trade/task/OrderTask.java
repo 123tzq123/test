@@ -21,7 +21,6 @@ public class OrderTask {
     //30秒执行一次
     @Scheduled(fixedRate = 30 * 1000)
     public void cancelExpireOrder() {
-        System.out.println("=====定时任务执行了====");
         // 查询所有待确认订单 status=0
         LambdaQueryWrapper<TradeOrder> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(TradeOrder::getStatus, 0);
@@ -29,7 +28,7 @@ public class OrderTask {
 
         long now = System.currentTimeMillis();
         //15分钟 毫秒数
-        long expireTime = 1 * 60 * 1000;
+        long expireTime = 1 * 15 * 60 * 1000;
 
         for (TradeOrder order : orderList) {
             //将createTime转为毫秒

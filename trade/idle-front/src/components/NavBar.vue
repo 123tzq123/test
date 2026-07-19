@@ -16,10 +16,10 @@
       <router-link to="/personal/receiveComment" class="menu-item" active-class="active">收到评价</router-link>
     </div>
     <!-- 右侧头像下拉 -->
-    <div class="nav-right" v-if="loginUserId">
+    <div class="nav-right" v-if="getLoginInfo().loginUserId">
       <el-dropdown trigger="click">
         <div class="avatar-wrap">
-          <el-avatar :src="avatarUrl" size="38" />
+          <el-avatar :src="getLoginInfo().avatarUrl" size="38" />
         </div>
         <template #dropdown>
           <el-dropdown-menu>
@@ -36,12 +36,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import Cookies from 'js-cookie'
 const router = useRouter()
-const loginUserId = ref(Number(Cookies.get('userId')))
-const avatarUrl = ref(Cookies.get('avatar') || '')
+
+// 每次渲染实时读取Cookie，获取最新userId、头像
+const getLoginInfo = () => {
+  const userIdStr = Cookies.get('userId')
+  const avatar = Cookies.get('avatar') || ''
+  return {
+    loginUserId: userIdStr ? Number(userIdStr) : null,
+    avatarUrl: avatar
+  }
+}
 
 // 退出登录
 const logout = () => {

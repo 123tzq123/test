@@ -21,7 +21,7 @@ public class GoodsCollectController {
     @Resource
     private GoodsCollectService collectService;
 
-    //从Cookie中获取userId，适配你现有项目
+    //从Cookie中获取userId
     private Long getUserId(HttpServletRequest request){
         Cookie[] cookies = request.getCookies();
         System.out.println("cookies数组："+cookies);

@@ -241,7 +241,6 @@ public class GoodsServiceImpl extends ServiceImpl<IdleGoodsMapper, IdleGoods> im
         //商品名称模糊查询，使用title字段
         if (queryDTO.getTitle() != null && !queryDTO.getTitle().trim().isEmpty()) {
             wrapper.like(IdleGoods::getTitle, queryDTO.getTitle().trim());
-            System.out.println("title: " + queryDTO.getTitle());
         }
         //按创建时间降序
         wrapper.orderByDesc(IdleGoods::getCreateTime);

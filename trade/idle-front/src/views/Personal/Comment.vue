@@ -2,27 +2,26 @@
   <NavBar></NavBar>
   <div class="page-wrap">
     <h2 class="page-title">我的过往评价</h2>
-    <el-card class="table-card">
-      <el-table :data="commentList" border stripe>
-        <el-table-column label="商品名称" prop="goodsTitle" min-width="200"></el-table-column>
-        <el-table-column label="评分" width="120">
-          <template #default="scope">
-            <el-rate v-model="scope.row.score" disabled size="small"></el-rate>
-          </template>
-        </el-table-column>
-        <el-table-column label="评价内容" prop="content" min-width="260"></el-table-column>
-        <el-table-column label="评价图片" width="140">
-          <template #default="scope">
-            <div class="img-row" v-if="scope.row.imgList.length > 0">
-              <img v-for="img in scope.row.imgList" :key="img" :src="img" class="table-img" />
-            </div>
-            <span v-else>无图片</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="评价时间" prop="createTime" width="180"></el-table-column>
-      </el-table>
-      <div class="empty-tip" v-if="commentList.length === 0">暂无评价记录</div>
-    </el-card>
+    <el-table :data="commentList" border stripe style="width:100%;margin-top:20px;">
+      <el-table-column label="商品名称" prop="goodsTitle" min-width="160"/>
+      <el-table-column label="评分" width="100">
+        <template #default="scope">
+          <el-rate v-model="scope.row.score" disabled size="small"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="评价内容" prop="content" min-width="220"/>
+      <el-table-column label="评价图片" min-width="240">
+        <template #default="scope">
+          <div class="eval-img-box">
+            <template v-for="img in splitImgStr(scope.row.imgList)" :key="img">
+              <img class="eval-img" :src="img" alt="评价图"/>
+            </template>
+            <span v-if="splitImgStr(scope.row.imgList).length === 0">无评价图片</span>
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="评价时间" prop="createTime" width="180"/>
+    </el-table>
   </div>
 </template>
 
@@ -30,22 +29,20 @@
 import { ref, onMounted } from 'vue'
 import NavBar from '../../components/NavBar.vue'
 import { getMyCommentApi } from '../../api/comment'
-import { GoodsCommentVO } from '../../types'
+import { GoodsCommentVO, Result } from '../../types'
 
-const commentList = ref<GoodsCommentVO[]>([])
+const commentList = ref<GoodsCommentVO[]>()
+
+// 和首页、卖家主页共用的图片拆分函数
+const splitImgStr = (str: string | null | undefined): string[] => {
+  if (!str || str.trim() === '') return []
+  return str.split(',').filter(url => url.trim())
+}
 
 const loadComment = async () => {
-  const res = await getMyCommentApi()
-  if(res.code === 200) {
-    // 兜底null字段，避免渲染报错
-    const safeArr = (res.data ?? []).map(item => {
-      return {
-        ...item,
-        imgList: item.imgList ?? [],
-        buyerInfo: item.buyerInfo ?? { id:0, nickname:"匿名用户", avatar:"" }
-      }
-    })
-    commentList.value = safeArr
+  const res = await getMyCommentApi() as unknown as Result<GoodsCommentVO[]>
+  if (res.code === 200) {
+    commentList.value = res.data
   }
 }
 
@@ -67,26 +64,16 @@ onMounted(() => {
   border-left: 4px solid #409EFF;
   padding-left: 12px;
 }
-.table-card {
-  border-radius: 12px;
-  padding: 24px;
+.eval-img-box {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
 }
-.table-img {
-  width: 60px;
-  height: 60px;
+.eval-img {
+  width: 70px;
+  height: 70px;
   object-fit: cover;
   border-radius: 6px;
-  margin: 0 4px 4px 0;
-}
-.empty-tip {
-  text-align: center;
-  padding: 60px 0;
-  font-size: 16px;
-  color: #909399;
-}
-.img-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
 }
 </style>
