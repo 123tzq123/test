@@ -86,7 +86,6 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Plus } from '@element-plus/icons-vue'
-import Cookies from 'js-cookie'
 import NavBar from '../../components/NavBar.vue'
 import { getMyOrderApi, cancelOrderApi, finishOrderApi } from '../../api/order'
 import { publishCommentApi } from '../../api/comment'
@@ -97,7 +96,7 @@ const router = useRouter()
 const orderList = ref<OrderItem[]>([])
 // 携带token请求头，和UserSetting页面保持一致
 const headers = ref({
-  token: Cookies.get('token') || ''
+  token: sessionStorage.getItem('token') || ''
 })
 
 //评价弹窗数据

@@ -4,6 +4,16 @@
     <h2 class="page-title">我的过往评价</h2>
     <el-table :data="commentList" border stripe style="width:100%;margin-top:20px;">
       <el-table-column label="商品名称" prop="goodsTitle" min-width="160"/>
+      <!-- 新增：卖家信息列（头像+昵称，可点击跳转卖家主页） -->
+      <el-table-column label="卖家信息" width="180">
+        <template #default="scope">
+          <div class="user-info" v-if="scope.row.goodsSeller" @click="$router.push({path:'/seller',query:{sellerId:scope.row.goodsSeller.id}})">
+            <el-avatar :src="scope.row.goodsSeller.avatar" size="40"></el-avatar>
+            <span class="user-name">{{ scope.row.goodsSeller.nickname }}</span>
+          </div>
+          <span v-else>商品已下架</span>
+        </template>
+      </el-table-column>
       <el-table-column label="评分" width="100">
         <template #default="scope">
           <el-rate v-model="scope.row.score" disabled size="small"/>
@@ -27,11 +37,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import NavBar from '../../components/NavBar.vue'
 import { getMyCommentApi } from '../../api/comment'
 import { GoodsCommentVO, Result } from '../../types'
 
-const commentList = ref<GoodsCommentVO[]>()
+const router = useRouter()
+const commentList = ref<GoodsCommentVO[]>([])
 
 // 和首页、卖家主页共用的图片拆分函数
 const splitImgStr = (str: string | null | undefined): string[] => {
@@ -75,5 +87,15 @@ onMounted(() => {
   height: 70px;
   object-fit: cover;
   border-radius: 6px;
+}
+/* 用户信息行样式，和商品详情统一 */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.user-name {
+  color: #409EFF;
 }
 </style>

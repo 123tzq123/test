@@ -26,7 +26,7 @@ public class MessageController {
                                                       @RequestParam(defaultValue = "20") Integer pageSize,
                                                       HttpServletRequest request){
         //手动判断参数
-        if(goodsId == null || goodsId <=0 || otherId == null || otherId <=0){
+        if(otherId == null || otherId <=0){
             throw new GlobalException(500,"参数错误");
         }
         Long selfId = (Long) request.getAttribute(AttributeConst.LOGIN_USER_ID);

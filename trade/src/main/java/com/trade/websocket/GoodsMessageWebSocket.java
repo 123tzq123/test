@@ -3,6 +3,7 @@ package com.trade.websocket;
 import com.alibaba.fastjson2.JSON;
 import com.trade.domain.GoodsMessage;
 import com.trade.dto.MessageDTO;
+import com.trade.mapper.SysUserMapper;
 import com.trade.service.GoodsMessageService;
 import com.trade.util.JwtUtil;
 import com.trade.util.SpringContextUtil;
@@ -66,13 +67,16 @@ public class GoodsMessageWebSocket {
             }
         }
         GoodsMessage message = getGoodsMessageService().saveMessage(dto, fromUserId);
-        //手动构造Map，把LocalDateTime转为字符串，避开fastjson2序列化LocalDateTime的坑
         Map<String,Object> resultMap = new HashMap<>();
+        // 查询发送者头像
+        String avatar = getSysUserMapper().selectById(message.getFromUserId()).getAvatar();
         resultMap.put("id", message.getId());
         resultMap.put("goodsId", message.getGoodsId());
         resultMap.put("fromUserId", message.getFromUserId());
         resultMap.put("toUserId", message.getToUserId());
         resultMap.put("content", message.getContent());
+        resultMap.put("fromUserAvatar", avatar); // 新增头像字段
+        resultMap.put("readStatus", message.getReadStatus()); // 新增已读状态
         resultMap.put("createTime", message.getCreateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         String jsonStr = JSON.toJSONString(resultMap);
 
@@ -106,5 +110,22 @@ public class GoodsMessageWebSocket {
     public void onError(Session session, Throwable throwable) {
         onlineUser.entrySet().removeIf(entry -> entry.getValue() == session);
         throwable.printStackTrace();
+    }
+
+    // 新增获取用户Mapper
+    private SysUserMapper getSysUserMapper() {
+        return SpringContextUtil.getBean(SysUserMapper.class);
+    }
+
+    // 新增静态推送方法（解决service调用报错）
+    public static void sendToUser(Long userId, String jsonMsg) {
+        Session targetSession = onlineUser.get(userId);
+        if (targetSession != null && targetSession.isOpen()) {
+            try {
+                targetSession.getBasicRemote().sendText(jsonMsg);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

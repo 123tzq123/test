@@ -5,7 +5,16 @@
     <el-card class="table-card">
       <el-table :data="receiveCommentList" border stripe>
         <el-table-column label="商品名称" prop="goodsTitle" min-width="200"></el-table-column>
-        <el-table-column label="买家昵称" prop="buyerNickname" width="140"></el-table-column>
+        <!-- 替换原有买家昵称列：头像+昵称 可点击跳转 -->
+        <el-table-column label="买家信息" width="180">
+          <template #default="scope">
+            <div class="user-info" v-if="scope.row.buyerInfo" @click="$router.push({path:'/seller',query:{sellerId:scope.row.buyerInfo.id}})">
+              <el-avatar :src="scope.row.buyerInfo.avatar" size="40"></el-avatar>
+              <span class="user-name">{{ scope.row.buyerInfo.nickname }}</span>
+            </div>
+            <span v-else>匿名用户</span>
+          </template>
+        </el-table-column>
         <el-table-column label="评分" width="120">
           <template #default="scope">
             <el-rate v-model="scope.row.score" disabled size="small"></el-rate>
@@ -29,12 +38,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import Cookies from 'js-cookie'
+import { useRouter } from 'vue-router'
 import NavBar from '../../components/NavBar.vue'
 import { getSellerCommentApi } from '../../api/comment'
 
+const router = useRouter()
 const receiveCommentList = ref<any[]>([])
-const loginUserId = Number(Cookies.get('userId') || '0')
+const userIdStr = sessionStorage.getItem('userId')
+const loginUserId = userIdStr ? Number(userIdStr) : 0
 
 const loadData = async () => {
   const res = await getSellerCommentApi(loginUserId)
@@ -50,7 +61,8 @@ const loadData = async () => {
         }
         allComments.push({
           goodsTitle: item.goodsTitle,
-          buyerNickname: c.buyerInfo?.nickname ?? "匿名用户",
+          // 完整保留买家对象，头像昵称id全部携带
+          buyerInfo: c.buyerInfo,
           score: c.score,
           content: c.content,
           imgList: imgArr,
@@ -90,7 +102,6 @@ onMounted(() => {
   font-size: 16px;
   color: #909399;
 }
-/* 新增图片布局样式 */
 .img-row {
   display: flex;
   flex-wrap: wrap;
@@ -101,5 +112,15 @@ onMounted(() => {
   height: 60px;
   object-fit: cover;
   border-radius: 6px;
+}
+/* 用户头像昵称行样式 */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.user-name {
+  color: #409EFF;
 }
 </style>

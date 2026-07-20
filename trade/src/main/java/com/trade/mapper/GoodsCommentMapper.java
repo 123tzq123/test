@@ -21,18 +21,22 @@ public interface GoodsCommentMapper {
     @Select("SELECT COUNT(*) FROM goods_comment WHERE order_id = #{orderId}")
     Integer countCommentByOrderId(@Param("orderId") Long orderId);
 
-    //根据卖家id，查询该卖家全部商品对应的评价
-    @Select("SELECT gc.id,gc.goods_id goodsId,gc.score,gc.content,gc.img_list imgList,gc.create_time createTime,su.id buyerId,su.nickname,su.avatar " +
+    @Select("SELECT gc.id,gc.goods_id goodsId,gc.score,gc.content,gc.img_list imgList,gc.create_time createTime," +
+            "su.id \"buyerInfo.id\",su.nickname \"buyerInfo.nickname\",su.avatar \"buyerInfo.avatar\",ig.title goodsTitle " +
             "FROM goods_comment gc " +
             "LEFT JOIN sys_user su ON gc.buyer_id = su.id " +
             "LEFT JOIN idle_goods ig ON gc.goods_id = ig.id " +
             "WHERE ig.user_id = #{sellerId}")
     List<GoodsCommentVO> selectCommentBySellerId(@Param("sellerId") Long sellerId);
 
-    // ========== 新增：查询当前买家自己发布的所有评价 ==========
-    @Select("SELECT gc.id,gc.goods_id goodsId,gc.score,gc.content,gc.img_list imgList,gc.create_time createTime,su.id buyerId,su.nickname,su.avatar " +
+    // ========== 修改后的：查询当前买家自己发布的所有评价（左联商品+卖家用户，带出卖家信息） ==========
+    @Select("SELECT gc.id,gc.goods_id goodsId,gc.score,gc.content,gc.img_list imgList,gc.create_time createTime,ig.title goodsTitle," +
+            "su.id \"buyerInfo.id\",su.nickname \"buyerInfo.nickname\",su.avatar \"buyerInfo.avatar\"," +
+            "seller.id \"goodsSeller.id\",seller.nickname \"goodsSeller.nickname\",seller.avatar \"goodsSeller.avatar\" " +
             "FROM goods_comment gc " +
             "LEFT JOIN sys_user su ON gc.buyer_id = su.id " +
+            "LEFT JOIN idle_goods ig ON gc.goods_id = ig.id " +
+            "LEFT JOIN sys_user seller ON ig.user_id = seller.id " +
             "WHERE gc.buyer_id = #{buyerId}")
     List<GoodsCommentVO> selectMyCommentByBuyerId(@Param("buyerId") Long buyerId);
 }

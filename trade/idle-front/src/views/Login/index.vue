@@ -21,7 +21,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import Cookies from 'js-cookie'
 // 导入获取用户信息接口
 import { loginApi, getUserInfoApi } from '../../api/user'
 import { ElMessage, ElForm } from 'element-plus'
@@ -40,15 +39,13 @@ const handleLogin = async () => {
   }
   const res = await loginApi(loginForm.value)
   if (res.code === 200) {
-    Cookies.set('token', res.data.token)
-    Cookies.set('userId', String(res.data.userId))
-
+    sessionStorage.setItem('token', res.data.token)
+    sessionStorage.setItem('userId', String(res.data.userId))
     // 拉取用户信息，存储头像Cookie 
     const userInfoRes = await getUserInfoApi()
     // 兜底：头像为null时存空字符串
     const avatarUrl = userInfoRes.data.avatar ?? ''
-    Cookies.set('avatar', avatarUrl)
-
+    sessionStorage.setItem('avatar', avatarUrl)
     ElMessage.success('登录成功')
     router.push('/')
   } else {

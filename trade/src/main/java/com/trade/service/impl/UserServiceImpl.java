@@ -42,7 +42,7 @@ public class UserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impleme
         user.setRole("user");
         user.setStatus(1);
         this.save(user);
-        String defaultAvatar = "https://idle-goods-image.oss-cn-beijing.aliyuncs.com/image/db60d339f30644c7be92be00826ed038.jpg";
+        String defaultAvatar = "https://idle-goods-image.oss-cn-beijing.aliyuncs.com/image/%E9%BB%98%E8%AE%A4%E7%94%A8%E6%88%B7.jpg";
         user.setNickname("闲置用户");
         user.setAvatar(defaultAvatar);
         this.updateById(user);

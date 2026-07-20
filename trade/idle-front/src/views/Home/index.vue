@@ -47,7 +47,6 @@
     </el-row>
   </div>
 </template>
-
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, onBeforeRouteUpdate } from 'vue-router'
@@ -83,7 +82,13 @@ const loadCategory = async () => {
   }
 }
 
-const loadList = async () => {
+// 统一加载列表：新增参数resetPage，筛选时重置到第一页
+const loadList = async (resetPage: boolean = false) => {
+  // 筛选、切换分类、搜索时重置页码
+  if (resetPage) {
+    currentPage.value = 1
+  }
+
   let min: number | null = null
   let max: number | null = null
 

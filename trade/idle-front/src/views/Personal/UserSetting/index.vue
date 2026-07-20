@@ -32,13 +32,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import Cookies from 'js-cookie'
 import NavBar from '../../../components/NavBar.vue'
 import { getUserInfoApi, updateUserInfoApi } from '../../../api/user'
 import { ElMessage } from 'element-plus'
 
 const headers = ref({
-  token: Cookies.get('token')
+  token: sessionStorage.getItem('token')
 })
 const form = ref({
   nickname: '',
@@ -54,14 +53,14 @@ const getUserInfo = async () => {
 //头像上传成功，同步更新Cookie
 const onAvatarSuccess = (res: any) => {
   form.value.avatar = res.data
-  Cookies.set('avatar', res.data)
+  sessionStorage.setItem('avatar', res.data)
   ElMessage.success("头像上传完毕，请点击保存")
 }
 
 //提交修改，同步最新头像到Cookie
 const submit = async () => {
   await updateUserInfoApi(form.value)
-  Cookies.set('avatar', form.value.avatar)
+  sessionStorage.setItem('avatar', form.value.avatar)
   ElMessage.success("个人信息修改成功！")
 }
 

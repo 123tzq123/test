@@ -1,6 +1,7 @@
 package com.trade.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.trade.domain.IdleGoods;
@@ -86,7 +87,6 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
         redisUtil.del(key);
     }
 
-    @Override
     @Transactional
     public void finishOrder(Long orderId, Long userId) {
         TradeOrder order = this.getById(orderId);
@@ -101,12 +101,13 @@ public class OrderServiceImpl extends ServiceImpl<TradeOrderMapper, TradeOrder> 
         //清除Redis
         String key = "order:expire:" + orderId;
         redisUtil.del(key);
-        //修改商品状态为已售出
-        IdleGoods goods = new IdleGoods();
-        goods.setId(order.getGoodsId());
-        goods.setStatus(3);
-        goodsMapper.updateById(goods);
+        // 修改商品状态为已售出，仅更新status，不会覆盖价格
+        LambdaUpdateWrapper<IdleGoods> goodsUpdateWrapper = new LambdaUpdateWrapper<>();
+        goodsUpdateWrapper.eq(IdleGoods::getId, order.getGoodsId())
+                .set(IdleGoods::getStatus, 3);
+        goodsMapper.update(null, goodsUpdateWrapper);
     }
+
 
     @Override
     public Page<OrderVO> getMyOrder(Long userId, Integer pageNum, Integer pageSize) {

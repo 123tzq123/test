@@ -62,7 +62,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import Cookies from 'js-cookie'
 import NavBar from '../../components/NavBar.vue'
 import { getGoodsDetailApi, isCollectApi, changeCollectApi } from '../../api/goods'
 import { createOrderApi } from '../../api/order'
@@ -73,7 +72,8 @@ const route = useRoute()
 const router = useRouter()
 const goods = ref<GoodsItem>()
 const isCollect = ref(false)
-const loginUserId = Number(Cookies.get('userId')) || 0
+const userIdStr = sessionStorage.getItem('userId')
+const loginUserId = userIdStr ? Number(userIdStr) : 0
 let goodsId = 0
 
 const getDetail = async () => {

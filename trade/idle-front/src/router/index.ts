@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import Cookies from 'js-cookie'
 
 //路由元信息，requiresAuth:true代表需要登录
 const routes: RouteRecordRaw[] = [
@@ -120,7 +119,7 @@ const router = createRouter({
 
 //全局路由守卫
 router.beforeEach((to, from, next) => {
-  const token = Cookies.get('token')
+  const token = sessionStorage.getItem('token')
   if (to.meta.requiresAuth) {
     if (token) {
       next()

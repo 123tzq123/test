@@ -67,6 +67,9 @@ export interface MessageItem {
   toUserId: number
   content: string
   createTime: string
+  // 可选，后端分页历史接口初次加载可能无值
+  fromUserAvatar?: string;
+  readStatus?: number;
 }
 
 export interface SysUser {
@@ -104,8 +107,12 @@ export interface GoodsCommentVO {
   content: string | null
   imgList: string[]
   createTime: string
+  // 新增：商品标题，联查直接返回
+  goodsTitle?: string
   //评价者信息
   buyerInfo: SysUser
+  // 新增：商品卖家信息
+  goodsSeller?: SysUser
 }
 
 //卖家主页返回数据

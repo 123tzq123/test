@@ -12,20 +12,22 @@
     <el-row :gutter="24" class="goods-grid" v-else>
       <el-col :span="6" v-for="item in collectList" :key="item.id">
         <el-card shadow="hover" class="goods-card">
-          <!-- 图片加载失败兜底处理 -->
-            <img 
-              v-if="item.coverImg ?? ''" 
-              :src="item.coverImg ?? ''" 
-              class="goods-img" 
-              alt="商品封面"
-
-            />
+          <img
+            v-if="item.coverImg ?? ''"
+            :src="item.coverImg ?? ''"
+            class="goods-img"
+            alt="商品封面"
+          />
           <div v-else class="empty-img">暂无商品图</div>
-          
+
           <h3 class="goods-title">{{ item.title }}</h3>
           <p class="goods-price">¥{{ item.price ?? 0 }}</p>
           <p class="view-text">浏览 {{ item.viewCount ?? 0 }} 次</p>
-          <el-button size="large" type="primary" class="detail-btn" @click="$router.push('/goods/' + item.id)">查看详情</el-button>
+          <!-- 双按钮并排 -->
+          <div class="btn-row">
+            <el-button size="small" type="primary" class="detail-btn" @click="$router.push('/goods/' + item.id)">查看详情</el-button>
+            <el-button size="small" type="default" class="cancel-btn" @click="handleCancelCollect(item.id)">取消收藏</el-button>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -35,27 +37,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import NavBar from '../../components/NavBar.vue'
-import { getMyCollectApi } from '../../api/goods'
-import { GoodsItem, Result } from '../../types'
+import { getMyCollectApi, changeCollectApi } from '../../api/goods'
+import { GoodsItem, Result, CollectDTO } from '../../types'
+import { ElMessage } from 'element-plus'
 
 const collectList = ref<GoodsItem[]>([])
-// 记录加载404失败的商品ID
-const errorImgIds = ref<number[]>([])
+const userIdStr = sessionStorage.getItem('userId')
+const loginUserId = userIdStr ? Number(userIdStr) : 0
 
-// 图片加载失败回调
-const handleImgError = (goodsId: number) => {
-  if (!errorImgIds.value.includes(goodsId)) {
-    errorImgIds.value.push(goodsId)
-  }
-}
-
-//加载我的收藏列表
+// 加载收藏列表
 const loadCollect = async () => {
-  // 接口直接返回商品数组，不是分页对象，删除PageVO包装
   const res = await getMyCollectApi() as unknown as Result<GoodsItem[]>
   if (res.code === 200) {
-    // 拆分goodsImg逗号字符串，取第一张赋值coverImg
-    collectList.value = res.data.map(item => {
+    collectList.value = res.data.map((item: GoodsItem) => {
       let coverImg = ''
       if (item.goodsImg && item.goodsImg.trim() !== '') {
         const imgArr = item.goodsImg.split(',').filter(s => s.trim())
@@ -69,19 +63,35 @@ const loadCollect = async () => {
   }
 }
 
+// 取消收藏方法
+const handleCancelCollect = async (goodsId: number) => {
+  const params: CollectDTO = {
+    goodsId: goodsId,
+    userId: loginUserId
+  }
+  const res = await changeCollectApi(params)
+  // 请求成功
+  if (res.code === 200) {
+    // 弹出成功提示
+    ElMessage.success("取消收藏成功")
+    // 重新拉取最新收藏列表，页面自动刷新
+    await loadCollect()
+  } else {
+    ElMessage.error(res.msg || "操作失败")
+  }
+}
+
 onMounted(() => {
   loadCollect()
 })
 </script>
 
 <style scoped>
-/* 全站统一页面外层 */
 .page-wrap {
   padding: 24px 48px;
-  background: #f5f7fa;
+  background: #f5f5f5;
   min-height: calc(100vh - 64px);
 }
-/* 页面统一标题 */
 .page-title {
   font-size: 22px;
   margin: 0 0 24px;
@@ -89,7 +99,6 @@ onMounted(() => {
   border-left: 4px solid #409EFF;
   padding-left: 12px;
 }
-/* 空收藏提示区域 */
 .empty-tip {
   text-align: center;
   padding: 60px 0;
@@ -100,23 +109,19 @@ onMounted(() => {
   margin-top: 16px;
   border-radius: 8px;
 }
-/* 商品网格间距 */
 .goods-grid {
   row-gap: 24px;
 }
-/* 商品卡片统一样式 */
 .goods-card {
   border-radius: 12px;
   overflow: hidden;
 }
-/* 和首页、卖家主页图片尺寸统一 */
 .goods-img {
   width: 100%;
   height: 140px;
   object-fit: cover;
   border-radius: 8px;
 }
-/* 无图/图片404占位样式 */
 .empty-img {
   width: 100%;
   height: 140px;
@@ -146,8 +151,12 @@ onMounted(() => {
   color: #909399;
   margin: 0 0 16px;
 }
-.detail-btn {
-  width: 100%;
+.btn-row {
+  display: flex;
+  gap: 8px;
+}
+.detail-btn, .cancel-btn {
+  flex: 1;
   border-radius: 8px;
 }
 </style>

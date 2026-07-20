@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.trade.mapper.GoodsMessageMapper">
+    <resultMap id="MsgResultMap" type="com.trade.domain.GoodsMessage">
+        <id column="id" property="id"/>
+        <result column="goods_id" property="goodsId"/>
+        <result column="from_user_id" property="fromUserId"/>
+        <result column="to_user_id" property="toUserId"/>
+        <result column="content" property="content"/>
+        <result column="read_status" property="readStatus"/>
+        <result column="create_time" property="createTime"/>
+        <!-- 关联用户头像 -->
+        <result column="avatar" property="fromUserAvatar"/>
+    </resultMap>
+
+    <select id="selectMsgWithAvatar" resultMap="MsgResultMap">
+        SELECT gm.*, su.avatar
+        FROM goods_message gm
+        LEFT JOIN sys_user su ON gm.from_user_id = su.id
+        ${ew.customSqlSegment}
+    </select>
+</mapper>

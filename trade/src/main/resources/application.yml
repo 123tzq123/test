@@ -18,6 +18,7 @@ mybatis-plus:
     db-config:
       id-type: auto
   configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
 jwt:
   secret: TradeSecretKey123456789abcdefghijk

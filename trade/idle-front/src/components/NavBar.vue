@@ -2,7 +2,7 @@
   <div class="nav-bar">
     <!-- 左侧Logo与平台名 -->
     <div class="nav-left" @click="$router.push('/')">
-      <span class="logo-text">闲置优品交易平台</span>
+      <span class="logo-text">闲置优品二手交易平台</span>
     </div>
     <!-- 中间导航菜单 -->
     <div class="nav-menu">
@@ -37,24 +37,27 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import Cookies from 'js-cookie'
+import { computed } from 'vue'
 const router = useRouter()
 
-// 每次渲染实时读取Cookie，获取最新userId、头像
+// 每次渲染实时读取 sessionStorage 获取最新登录ID、头像
 const getLoginInfo = () => {
-  const userIdStr = Cookies.get('userId')
-  const avatar = Cookies.get('avatar') || ''
+  const userIdStr = sessionStorage.getItem('userId')
+  const avatar = sessionStorage.getItem('avatar') || ''
   return {
     loginUserId: userIdStr ? Number(userIdStr) : null,
     avatarUrl: avatar
   }
 }
 
-// 退出登录
+// 实时响应登录状态
+const loginInfo = computed(() => getLoginInfo())
+
+// 退出登录：清空当前标签页sessionStorage
 const logout = () => {
-  Cookies.remove('token')
-  Cookies.remove('userId')
-  Cookies.remove('avatar')
+  sessionStorage.removeItem('token')
+  sessionStorage.removeItem('userId')
+  sessionStorage.removeItem('avatar')
   router.push('/login')
 }
 </script>

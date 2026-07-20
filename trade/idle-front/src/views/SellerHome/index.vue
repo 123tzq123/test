@@ -2,16 +2,20 @@
   <NavBar></NavBar>
   <div class="page-wrap">
     <h2 class="page-title">卖家主页</h2>
-    <!-- 卖家头部信息卡片 -->
+    <!-- 卖家头部信息卡片（新增联系卖家按钮） -->
     <el-card class="seller-header-card">
-  <div class="seller-header">
-    <el-avatar :src="sellerInfo.avatar || ''" size="80"></el-avatar>
-    <div class="seller-text">
-      <h2>{{ sellerInfo.nickname }}</h2>
-      <p class="score-text">综合评分：{{ avgScore }} 分</p>
-    </div>
-  </div>
-</el-card>
+      <div class="seller-header">
+        <div class="user-base">
+          <el-avatar :src="sellerInfo.avatar || ''" size="80"></el-avatar>
+          <div class="seller-text">
+            <h2>{{ sellerInfo.nickname }}</h2>
+            <p class="score-text">综合评分：{{ avgScore }} 分</p>
+          </div>
+        </div>
+        <!-- 联系卖家按钮 -->
+        <el-button type="primary" size="large" @click="goChat">联系卖家</el-button>
+      </div>
+    </el-card>
 
     <h3 class="sub-title">他发布的闲置商品</h3>
     <div class="goods-wrap">
@@ -33,14 +37,13 @@
           </div>
         </div>
 
-        <!-- 商品买家评价：拆分imgList逗号串，只渲染有效图片，无多余error/cross属性 -->
+        <!-- 商品买家评价 -->
         <div class="comment-block" v-if="commentMap.get(item.id) && commentMap.get(item.id)!.length > 0">
           <h4 class="comment-title">买家评价</h4>
           <div class="comment-item" v-for="c in commentMap.get(item.id)" :key="c.id">
             <el-rate v-model="c.score" disabled size="small"></el-rate>
             <p class="comment-content">评价内容：{{ c.content }}</p>
             <div class="img-box">
-              <!-- 拆分字符串，过滤空链接，只循环有效图片 -->
               <template 
                 v-for="img in splitImgStr(c.imgList)" 
                 :key="img"
@@ -58,19 +61,23 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import NavBar from '../../components/NavBar.vue'
 import { getSellerHomeApi, getSellerCommentApi } from '../../api/comment'
 import { GoodsItem, SysUser, SellerGoodsCommentVO, GoodsCommentVO, Result, SellerHomeVO } from '../../types'
 
 const route = useRoute()
+const router = useRouter()
 const sellerId = Number(route.query.sellerId)
+const userIdStr = sessionStorage.getItem('userId')
+const loginUserId = userIdStr ? Number(userIdStr) : 0
 const sellerInfo = ref<SysUser>({} as SysUser)
 const avgScore = ref(0)
 const goodsList = ref<GoodsItem[]>([])
 const commentMap = ref<Map<number, GoodsCommentVO[]>>(new Map())
 
-// 统一图片拆分工具函数（兼容 string / string[] / null / undefined）
+// 统一图片拆分工具函数
 const splitImgStr = (source: string | string[] | null | undefined): string[] => {
   if (Array.isArray(source)) {
     return source.filter(url => url && url.trim())
@@ -79,14 +86,26 @@ const splitImgStr = (source: string | string[] | null | undefined): string[] => 
   return source.split(',').filter(url => url.trim())
 }
 
+
+const goChat = () => {
+  if (loginUserId === 0) {
+    ElMessage.warning("请先登录！")
+    return
+  }
+  router.push({
+    path: '/chat',
+    query: {
+      otherId: String(sellerId)
+    }
+  })
+}
+
+
 const loadData = async () => {
-  // 加载卖家商品，拆分goodsImg生成coverImg，和Home首页逻辑完全一致
   const res: Result<SellerHomeVO> = await getSellerHomeApi(sellerId)
   if (res.code === 200) {
     sellerInfo.value = res.data.sellerInfo
     avgScore.value = Number(res.data.avgScore)
-    // 修复1：字段 goods → goodsList
-    // 修复2：给item标注 GoodsItem 类型，消除any隐式类型报错
     goodsList.value = res.data.goodsList.map((item: GoodsItem) => {
       let coverImg = ''
       if (item.goodsImg && item.goodsImg.trim() !== '') {
@@ -141,6 +160,11 @@ onMounted(() => {
   padding: 30px;
 }
 .seller-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.user-base {
   display: flex;
   align-items: center;
   gap: 24px;

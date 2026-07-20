@@ -10,7 +10,7 @@
     <select id="getCommentByGoodsId" resultType="com.trade.vo.GoodsCommentVO">
         SELECT
         gc.id,gc.goods_id goodsId,gc.score,gc.content,gc.img_list imgList,gc.create_time createTime,
-        su.id buyerInfo_id,su.username buyerInfo_username,su.nickname buyerInfo_nickname,su.avatar buyerInfo_avatar
+        su.id "buyerInfo.id",su.nickname "buyerInfo.nickname",su.avatar "buyerInfo.avatar"
         FROM goods_comment gc
         LEFT JOIN sys_user su ON gc.buyer_id = su.id
         WHERE gc.goods_id = #{goodsId}

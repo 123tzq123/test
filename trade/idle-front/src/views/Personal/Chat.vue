@@ -11,8 +11,32 @@
           :key="item.id"
           :class="{ self: item.fromUserId === loginUserId }"
         >
-          <div class="msg-content">
-            {{ item.content }}
+          <!-- 头像 + 消息内容行 -->
+          <div class="msg-row">
+            <!-- 对方头像（我方隐藏） -->
+            <el-avatar 
+              v-if="item.fromUserId !== loginUserId" 
+              :src="item.fromUserAvatar || ''" 
+              size="40"
+              class="avatar"
+            ></el-avatar>
+            <!-- 消息气泡 -->
+            <div class="msg-content-box">
+              <div class="msg-content">
+                {{ item.content }}
+              </div>
+              <!-- 我方消息：显示已读/未读 -->
+              <span v-if="item.fromUserId === loginUserId" class="read-text">
+                {{ item.readStatus === 1 ? "已读" : "未读" }}
+              </span>
+            </div>
+            <!-- 自己头像（对方隐藏） -->
+            <el-avatar 
+              v-if="item.fromUserId === loginUserId" 
+              :src="myAvatar" 
+              size="40"
+              class="avatar"
+            ></el-avatar>
           </div>
           <div class="time">{{ formatTime(item.createTime) }}</div>
         </div>
@@ -34,28 +58,21 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance } from 'vue'
 import { useRoute } from 'vue-router'
-import Cookies from 'js-cookie'
 import NavBar from '../../components/NavBar.vue'
 import { getHistoryMsgApi } from '../../api/message'
+import { MessageItem  } from '../../types'
 import { ElMessage } from 'element-plus'
 
 const instance = getCurrentInstance()
-
-interface MessageItem {
-  id: number
-  goodsId: number
-  fromUserId: number
-  toUserId: number
-  content: string
-  createTime: string
-}
-
 const route = useRoute()
+// goodsId无值时赋值0，允许0（无商品聊天）
 const goodsId = Number(route.query.goodsId ?? 0)
 const otherId = Number(route.query.otherId ?? 0)
-const token = Cookies.get('token')
-
+const token = sessionStorage.getItem('token')
+// 当前登录用户ID、头像
 const loginUserId = ref(0)
+const myAvatar = ref(sessionStorage.getItem('avatar') || '')
+
 const msgList = ref<MessageItem[]>([])
 const content = ref('')
 const scrollRef = ref<HTMLDivElement | null>(null)
@@ -72,6 +89,7 @@ const formatTime = (timeStr: string) => {
   const m = date.getMinutes().toString().padStart(2, '0')
   return `${h}:${m}`
 }
+
 // 加载聊天记录
 const loadHistory = async () => {
   const res = await getHistoryMsgApi(goodsId, otherId)
@@ -99,12 +117,33 @@ const initWebSocket = () => {
       }
       return
     }
+    // ========== 新增：监听对方已读消息推送，实时更新状态 ==========
+    if (res.type === "read_update") {
+      const updatedMsgIds: number[] = res.msgIdList
+      msgList.value.forEach(item => {
+        if (updatedMsgIds.includes(item.id)) {
+          item.readStatus = 1
+        }
+      })
+      return
+    }
+    // 收到新消息追加列表
     const data = res as MessageItem
+    // 兜底字段，解决WebSocket推送缺少头像、状态导致空白/TS报错
+    data.fromUserAvatar = data.fromUserAvatar ?? ""
+    data.readStatus = data.readStatus ?? 0
+    // 删除无效的 instance?.proxy?.$forceUpdate()
     msgList.value.push(data)
-    instance?.proxy?.$forceUpdate()
     nextTick(() => {
       if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
     })
+    // // 收到新消息追加列表
+    // const data = res as MessageItem
+    // msgList.value.push(data)
+    // instance?.proxy?.$forceUpdate()
+    // nextTick(() => {
+    //   if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
+    // })
   }
   ws.onerror = () => {
     ElMessage.error('聊天连接失败，请刷新页面重试')
@@ -130,18 +169,36 @@ const sendMsg = () => {
   content.value = ''
 }
 
+// onMounted(async () => {
+//   // 只校验对方用户otherId，goodsId允许0（无商品聊天）
+//   if (isNaN(otherId) || otherId <= 0) {
+//     ElMessage.error('参数异常：聊天对象不存在')
+//     return
+//   }
+//   initWebSocket()
+// })
 onMounted(async () => {
-  if (isNaN(goodsId) || isNaN(otherId) || goodsId <= 0 || otherId <= 0) {
-    ElMessage.error('参数异常')
+  if (isNaN(otherId) || otherId <= 0) {
+    ElMessage.error('参数异常：聊天对象不存在')
     return
   }
   initWebSocket()
+  // 新增：浏览器切回页面自动重载聊天记录（折中方案，不用手动刷新）
+  window.addEventListener('focus', loadHistory)
 })
 
+// onUnmounted(() => {
+//   if (ws) {
+//     ws.close()
+//   }
+// })
 onUnmounted(() => {
-  if (ws) {
+  // 新增移除窗口焦点监听
+  window.removeEventListener('focus', loadHistory)
+  if (ws && ws.readyState === WebSocket.OPEN) {
     ws.close()
   }
+  ws = null
 })
 </script>
 
@@ -187,6 +244,27 @@ onUnmounted(() => {
 .msg-item.self {
   align-items: flex-end;
 }
+/* 头像+消息横向行 */
+.msg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.msg-item.self .msg-row {
+  flex-direction: row-reverse;
+}
+.avatar {
+  flex-shrink: 0;
+}
+/* 消息气泡容器（包含文字+已读） */
+.msg-content-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.msg-item.self .msg-content-box {
+  align-items: flex-end;
+}
 /* 消息气泡通用 */
 .msg-content {
   display: inline-block;
@@ -202,6 +280,12 @@ onUnmounted(() => {
 .msg-item.self .msg-content {
   background-color: #409EFF;
   color: #fff;
+}
+/* 已读/未读文字 */
+.read-text {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
 }
 /* 消息时间文字 */
 .time {
