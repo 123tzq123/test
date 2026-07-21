@@ -144,3 +144,13 @@ export interface SellerGoodsCommentVO {
   commentList: GoodsCommentVO[]
 }
 
+// 聊天会话列表（我的消息页面左侧）
+export interface ChatSessionItem {
+  otherId: number; // 对方用户ID
+  otherAvatar: string; // 对方头像
+  otherName: string; // 对方昵称
+  lastMsg: string; // 最后一条消息内容
+  lastMsgTime: string; // 最后消息时间
+  unreadNum: number; // 当前会话未读数量
+  goodsId: number; // 关联商品ID，0=无商品聊天
+}

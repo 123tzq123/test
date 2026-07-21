@@ -81,6 +81,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/Personal/UserSetting/index.vue'),
     meta: { requiresAuth: true }
   },
+  {
+  path: '/personal/message',
+  name: 'MyMessage',
+  component: () => import('../views/Personal/MessageList.vue'),
+  meta: { requiresLogin: true }
+  },
   // 聊天页面
   {
     path: '/chat',

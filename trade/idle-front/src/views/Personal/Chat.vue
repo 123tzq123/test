@@ -1,7 +1,5 @@
 <template>
-  <NavBar></NavBar>
-  <div class="page-wrap">
-    <h2 class="page-title">商品对话聊天</h2>
+  <div class="chat-wrap">
     <el-card class="chat-card">
       <!-- 聊天消息区域 -->
       <div class="msg-wrapper" ref="scrollRef">
@@ -56,20 +54,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, getCurrentInstance } from 'vue'
-import { useRoute } from 'vue-router'
-import NavBar from '../../components/NavBar.vue'
-import { getHistoryMsgApi } from '../../api/message'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { getHistoryMsgApi, saveMessageApi } from '../../api/message'
 import { MessageItem  } from '../../types'
 import { ElMessage } from 'element-plus'
+import { useRoute } from 'vue-router'
+// 消息去重追加工具函数
+const addMsgNoRepeat = (newMsg: MessageItem) => {
+  // 通过消息唯一id判断列表是否已有这条消息
+  const isExist = msgList.value.some(item => item.id === newMsg.id)
+  if (!isExist) {
+    msgList.value.push(newMsg)
+    // 追加后自动滚动到底部
+    nextTick(() => {
+      if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
+    })
+  }
+}
 
-const instance = getCurrentInstance()
+// 接收父组件传参
+const props = defineProps<{
+  otherId?: number
+  goodsId?: number
+}>()
+const emit = defineEmits(['close'])
 const route = useRoute()
-// goodsId无值时赋值0，允许0（无商品聊天）
-const goodsId = Number(route.query.goodsId ?? 0)
-const otherId = Number(route.query.otherId ?? 0)
+
+// 优先级：props > 路由query，兼容两种打开方式
+let tempOtherId = props.otherId
+let tempGoodsId = props.goodsId ?? 0
+// 路由跳转（商品详情/卖家主页）时读取query
+if(tempOtherId === undefined || tempOtherId <= 0){
+  tempOtherId = Number(route.query.otherId ?? 0)
+  tempGoodsId = Number(route.query.goodsId ?? 0)
+}
+const goodsId = tempGoodsId
+const otherId = tempOtherId
+
 const token = sessionStorage.getItem('token')
-// 当前登录用户ID、头像
 const loginUserId = ref(0)
 const myAvatar = ref(sessionStorage.getItem('avatar') || '')
 
@@ -82,76 +104,66 @@ let loaded = false
 const formatTime = (timeStr: string) => {
   if (!timeStr) return ""
   const date = new Date(timeStr)
-  if (isNaN(date.getTime())) {
-    return ""
-  }
+  if (isNaN(date.getTime())) return ""
   const h = date.getHours().toString().padStart(2, '0')
   const m = date.getMinutes().toString().padStart(2, '0')
   return `${h}:${m}`
 }
 
-// 加载聊天记录
 const loadHistory = async () => {
+  // 双重校验参数，非法直接终止
+  if (otherId <= 0) {
+    ElMessage.error('参数异常：聊天对象不存在')
+    emit('close')
+    return
+  }
   const res = await getHistoryMsgApi(goodsId, otherId)
   if (res.code === 200) {
     msgList.value = res.data.records
     await nextTick(() => {
-      if (scrollRef.value) {
-        scrollRef.value.scrollTop = scrollRef.value.scrollHeight
-      }
+      if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
     })
   }
 }
 
-// 初始化websocket连接
 const initWebSocket = () => {
   ws = new WebSocket(`ws://localhost:8080/ws/chat?token=${token}`)
   ws.onmessage = (event) => {
-    console.log("后端推送的数据", event.data)
-    const res = JSON.parse(event.data)
-    if (res.type === "init") {
-      loginUserId.value = res.userId
-      if (!loaded) {
-        loaded = true
-        loadHistory()
-      }
-      return
+  const res = JSON.parse(event.data)
+  if (res.type === "init") {
+    loginUserId.value = res.userId
+    if (!loaded) {
+      loaded = true
+      loadHistory()
     }
-    // ========== 新增：监听对方已读消息推送，实时更新状态 ==========
-    if (res.type === "read_update") {
-      const updatedMsgIds: number[] = res.msgIdList
-      msgList.value.forEach(item => {
-        if (updatedMsgIds.includes(item.id)) {
-          item.readStatus = 1
-        }
-      })
-      return
-    }
-    // 收到新消息追加列表
-    const data = res as MessageItem
-    // 兜底字段，解决WebSocket推送缺少头像、状态导致空白/TS报错
-    data.fromUserAvatar = data.fromUserAvatar ?? ""
-    data.readStatus = data.readStatus ?? 0
-    // 删除无效的 instance?.proxy?.$forceUpdate()
-    msgList.value.push(data)
-    nextTick(() => {
-      if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
-    })
-    // // 收到新消息追加列表
-    // const data = res as MessageItem
-    // msgList.value.push(data)
-    // instance?.proxy?.$forceUpdate()
-    // nextTick(() => {
-    //   if (scrollRef.value) scrollRef.value.scrollTop = scrollRef.value.scrollHeight
-    // })
+    return
   }
+  if (res.type === "read_update") {
+    const updatedMsgIds: number[] = res.msgIdList
+    msgList.value.forEach(item => {
+      if (updatedMsgIds.includes(item.id)) item.readStatus = 1
+    })
+    return
+  }
+  // 区分消息类型
+  if(res.type !== "chat_msg") return
+  const data = res as MessageItem
+  // 统一转数字对比，防止字符串/数字不匹配导致过滤失效
+  if(Number(data.fromUserId) === loginUserId.value) {
+    return
+  }
+  data.fromUserAvatar = data.fromUserAvatar ?? ""
+  data.readStatus = data.readStatus ?? 0
+  // 替换原来 msgList.value.push(data)
+  addMsgNoRepeat(data)
+  // 新消息抵达，标记刷新未读红点
+  localStorage.setItem('refreshUnreadFlag', String(Date.now()))
+}
   ws.onerror = () => {
     ElMessage.error('聊天连接失败，请刷新页面重试')
   }
 }
-
-//发送消息
-const sendMsg = () => {
+const sendMsg = async () => {
   if (!content.value.trim()) {
     ElMessage.warning('消息不能为空')
     return
@@ -165,86 +177,87 @@ const sendMsg = () => {
     toUserId: otherId,
     content: content.value.trim()
   }
-  ws.send(JSON.stringify(sendData))
+  try {
+    const res = await saveMessageApi(sendData)
+    if (res.code === 200) {
+  const newMsg = res.data
+  addMsgNoRepeat(newMsg)
   content.value = ''
 }
+  } catch {
+    ElMessage.error('发送失败，请重试')
+  }
+}
 
-// onMounted(async () => {
-//   // 只校验对方用户otherId，goodsId允许0（无商品聊天）
-//   if (isNaN(otherId) || otherId <= 0) {
-//     ElMessage.error('参数异常：聊天对象不存在')
-//     return
-//   }
-//   initWebSocket()
-// })
 onMounted(async () => {
   if (isNaN(otherId) || otherId <= 0) {
     ElMessage.error('参数异常：聊天对象不存在')
+    emit('close')
     return
   }
   initWebSocket()
-  // 新增：浏览器切回页面自动重载聊天记录（折中方案，不用手动刷新）
   window.addEventListener('focus', loadHistory)
 })
 
-// onUnmounted(() => {
-//   if (ws) {
-//     ws.close()
-//   }
-// })
 onUnmounted(() => {
-  // 新增移除窗口焦点监听
   window.removeEventListener('focus', loadHistory)
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.close()
-  }
+  if (ws && ws.readyState === WebSocket.OPEN) ws.close()
   ws = null
 })
 </script>
 
 <style scoped>
-/* 全站统一页面外层样式 */
-.page-wrap {
-  padding: 24px 48px;
-  background: #f5f7fa;
-  min-height: calc(100vh - 64px);
+.chat-wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
-/* 页面统一标题样式 */
-.page-title {
-  font-size: 22px;
-  margin: 0 0 24px;
-  color: #303133;
-  border-left: 4px solid #409EFF;
-  padding-left: 12px;
-}
-/* 聊天主卡片 */
 .chat-card {
-  width: 700px;
-  margin: 0 auto;
-  padding: 30px;
+  flex: 1;
+  padding: 20px;
   border-radius: 12px;
+  position: relative; /* 绝对定位父容器 */
+  height: 100%;
+  margin: 0;
+  box-sizing: border-box;
 }
-/* 聊天消息滚动区域 */
+/* 消息滚动区域：底部预留输入框高度，不会被遮挡 */
 .msg-wrapper {
-  height: 480px;
+  width: 100%;
+  height: calc(100% - 30px); /* 固定扣除输入框区域高度 */
   padding: 16px;
   overflow-y: auto;
   background-color: #f8f9fa;
   border-radius: 8px;
-  margin-bottom: 24px;
+  box-sizing: border-box;
 }
-/* 单条消息容器 */
+/* 发送栏：绝对定位固定卡片底部，永远不动 */
+.send-area {
+  position: absolute;
+  bottom: 10px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.send-area :deep(.el-input__inner) {
+  border-radius: 8px;
+}
+.send-area :deep(.el-input) {
+  flex: 1;
+}
+/* 消息条目样式不变 */
 .msg-item {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   margin: 14px 0;
 }
-/* 自己发送的消息右对齐 */
 .msg-item.self {
   align-items: flex-end;
 }
-/* 头像+消息横向行 */
 .msg-row {
   display: flex;
   align-items: flex-start;
@@ -256,7 +269,6 @@ onUnmounted(() => {
 .avatar {
   flex-shrink: 0;
 }
-/* 消息气泡容器（包含文字+已读） */
 .msg-content-box {
   display: flex;
   flex-direction: column;
@@ -265,7 +277,6 @@ onUnmounted(() => {
 .msg-item.self .msg-content-box {
   align-items: flex-end;
 }
-/* 消息气泡通用 */
 .msg-content {
   display: inline-block;
   padding: 10px 16px;
@@ -276,33 +287,18 @@ onUnmounted(() => {
   color: #303133;
   box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
-/* 我方气泡主色调 */
 .msg-item.self .msg-content {
   background-color: #409EFF;
   color: #fff;
 }
-/* 已读/未读文字 */
 .read-text {
   font-size: 12px;
   color: #909399;
   margin-top: 4px;
 }
-/* 消息时间文字 */
 .time {
   font-size: 12px;
   color: #909399;
   margin-top: 6px;
-}
-/* 底部发送栏 */
-.send-area {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-.send-area :deep(.el-input__inner) {
-  border-radius: 8px;
-}
-.send-area :deep(.el-input) {
-  flex: 1;
 }
 </style>

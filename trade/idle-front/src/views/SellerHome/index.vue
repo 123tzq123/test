@@ -92,10 +92,17 @@ const goChat = () => {
     ElMessage.warning("请先登录！")
     return
   }
+  // router.push({
+  //   path: '/chat',
+  //   query: {
+  //     otherId: String(sellerId)
+  //   }
+  // })
+  // 原跳转 /chat 注释，改为跳转到消息页，携带目标用户ID
   router.push({
-    path: '/chat',
+    path: '/personal/message',
     query: {
-      otherId: String(sellerId)
+      targetOtherId: String(sellerId)
     }
   })
 }

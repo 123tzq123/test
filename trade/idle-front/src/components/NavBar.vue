@@ -17,13 +17,21 @@
     </div>
     <!-- 右侧头像下拉 -->
     <div class="nav-right" v-if="getLoginInfo().loginUserId">
-      <el-dropdown trigger="click">
-        <div class="avatar-wrap">
+      <el-dropdown trigger="click" @visible-change="handleDropdownOpen">
+        <!-- 头像+未读红点 -->
+        <div class="avatar-wrap relative">
           <el-avatar :src="getLoginInfo().avatarUrl" size="38" />
+          <!-- 顶部头像未读红点 -->
+          <span v-if="totalUnread > 0" class="unread-badge">{{ totalUnread > 99 ? '99+' : totalUnread }}</span>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="$router.push('/personal/home')">我的主页</el-dropdown-item>
+            <!-- 我的消息 新增红点 -->
+            <el-dropdown-item @click="$router.push('/personal/message')" class="msg-menu-item">
+              <span>我的消息</span>
+              <span v-if="totalUnread > 0" class="menu-badge">{{ totalUnread >99 ? '99+' : totalUnread }}</span>
+            </el-dropdown-item>
             <el-dropdown-item divided @click="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -37,8 +45,13 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue'
+import { getUnreadTotalApi } from '../api/message'
 const router = useRouter()
+
+// 未读消息总数
+const totalUnread = ref(0)
+let unreadTimer: number | null = null
 
 // 每次渲染实时读取 sessionStorage 获取最新登录ID、头像
 const getLoginInfo = () => {
@@ -53,14 +66,55 @@ const getLoginInfo = () => {
 // 实时响应登录状态
 const loginInfo = computed(() => getLoginInfo())
 
+// 拉取未读总数
+const loadUnreadCount = async () => {
+  if (!loginInfo.value.loginUserId) {
+    totalUnread.value = 0
+    return
+  }
+  const res = await getUnreadTotalApi()
+  if (res.code === 200) {
+    totalUnread.value = res.data
+  }
+}
+
+// 下拉框打开时刷新未读数
+const handleDropdownOpen = () => {
+  loadUnreadCount()
+}
+
+// 监听本地存储变化，MessageList打开会话清除未读后自动刷新红点
+watch(
+  () => localStorage.getItem('refreshUnreadFlag'),
+  () => {
+    loadUnreadCount()
+  }
+)
+
+onMounted(() => {
+  loadUnreadCount()
+  // 缩短轮询为10秒，更快同步后端新消息
+  unreadTimer = window.setInterval(loadUnreadCount, 10000)
+  // 浏览器窗口切回可见时刷新
+  window.addEventListener('focus', loadUnreadCount)
+})
+
+onUnmounted(() => {
+  if (unreadTimer) clearInterval(unreadTimer)
+  window.removeEventListener('focus', loadUnreadCount)
+})
+
 // 退出登录：清空当前标签页sessionStorage
 const logout = () => {
   sessionStorage.removeItem('token')
   sessionStorage.removeItem('userId')
   sessionStorage.removeItem('avatar')
+  localStorage.removeItem('refreshUnreadFlag')
+  totalUnread.value = 0
   router.push('/login')
 }
 </script>
+
 
 <style scoped>
 .nav-bar {
@@ -102,5 +156,40 @@ const logout = () => {
 }
 .avatar-wrap {
   cursor: pointer;
+  position: relative;
+}
+/* 未读红点 */
+.unread-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #f53f3f;
+  color: #fff;
+  font-size: 10px;
+  padding: 0 5px;
+  border-radius: 10px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+/* 下拉菜单我的消息红点 */
+.msg-menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.menu-badge {
+  background: #f53f3f;
+  color: #fff;
+  font-size: 10px;
+  border-radius: 10px;
+  padding: 0 5px;
+  min-width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
