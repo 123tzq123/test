@@ -2,8 +2,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/idle_trade?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
-    username: root      #替换成你的mysql用户名
-    password: 109625      #替换成你的mysql密码
+    username: root
+    password: 109625
   redis:
     host: 127.0.0.1
     port: 6379
@@ -29,3 +29,13 @@ aliyun:
     accessKeyId: ${ALIYUN_ACCESS_KEY_ID}
     accessKeySecret: ${ALIYUN_ACCESS_KEY_SECRET}
     bucketName: idle-goods-image
+# DeepSeek 配置（暂时保留，供聊天AI助手使用）
+deepseek:
+  api-key: ${DEEPSEEK_API_KEY}
+  api-url: https://api.deepseek.com/v1/chat/completions
+  model: deepseek-chat
+
+# 通义千问 DashScope 配置（AI识图使用）
+dashscope:
+  api-key: ${DASHSCOPE_API_KEY}
+  api-url: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions

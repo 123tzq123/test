@@ -172,13 +172,19 @@ const finish = async (orderId: number) => {
   }
 }
 
-//跳转到聊天页面，otherId = 卖家id sellerId
+// 跳转到消息页面，联系卖家
 const goChat = (row: OrderItem) => {
+  const userIdStr = sessionStorage.getItem('userId')
+  if (!userIdStr) {
+    ElMessage.warning("请先登录！")
+    return
+  }
   router.push({
-    path: '/chat',
+    path: '/personal/message',
     query: {
-      goodsId: String(row.goodsId),
-      otherId: String(row.sellerId)
+      targetOtherId: String(row.sellerId),
+      targetOtherName: "",
+      targetOtherAvatar: ""
     }
   })
 }

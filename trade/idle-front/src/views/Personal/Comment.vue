@@ -37,12 +37,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import NavBar from '../../components/NavBar.vue'
 import { getMyCommentApi } from '../../api/comment'
 import { GoodsCommentVO, Result } from '../../types'
 
-const router = useRouter()
 const commentList = ref<GoodsCommentVO[]>([])
 
 // 和首页、卖家主页共用的图片拆分函数

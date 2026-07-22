@@ -120,18 +120,12 @@ const buyGoods = async () => {
 
 const goChat = () => {
   if(!goods.value) return
-  // router.push({
-  //   path: '/chat',
-  //   query: {
-  //     goodsId: String(goods.value.id),
-  //     otherId: String(goods.value.userId)
-  //   }
-  // })
-  // 不再跳独立聊天页，跳我的消息页面自动选中该卖家会话
   router.push({
     path: '/personal/message',
     query: {
-      targetOtherId: String(goods.value.userId)
+      targetOtherId: String(goods.value.userId),
+      targetOtherName: goods.value.sellerName,
+      targetOtherAvatar: goods.value.avatar
     }
   })
 }

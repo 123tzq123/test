@@ -44,6 +44,7 @@ import { useRouter } from 'vue-router'
 import NavBar from '../../components/NavBar.vue'
 import { getSellerOrderApi } from '../../api/order'
 import { OrderItem } from '../../types'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const orderList = ref<OrderItem[]>([])
@@ -58,11 +59,17 @@ const loadData = async () => {
 
 // 跳转到聊天页面
 const goChat = (row: OrderItem) => {
+  const userIdStr = sessionStorage.getItem('userId')
+  if (!userIdStr) {
+    ElMessage.warning("请先登录！")
+    return
+  }
   router.push({
-    path: '/chat',
+    path: '/personal/message',
     query: {
-      goodsId: String(row.goodsId),
-      otherId: String(row.buyerId)
+      targetOtherId: String(row.buyerId),
+      targetOtherName: "",
+      targetOtherAvatar: ""
     }
   })
 }

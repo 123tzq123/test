@@ -38,11 +38,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 import NavBar from '../../components/NavBar.vue'
 import { getSellerCommentApi } from '../../api/comment'
 
-const router = useRouter()
 const receiveCommentList = ref<any[]>([])
 const userIdStr = sessionStorage.getItem('userId')
 const loginUserId = userIdStr ? Number(userIdStr) : 0

@@ -1,5 +1,5 @@
 import request from '../utils/request'
-import { Result, GoodsItem, PageVO, GoodsPublishDTO, GoodsUpdateDTO, GoodsCategory, CollectDTO } from '../types'
+import { Result, GoodsItem, PageVO, GoodsPublishDTO, GoodsUpdateDTO, GoodsCategory, CollectDTO, AiGoodsDetectData } from '../types'
 
 //原来简单分页（给个人中心页面使用）
 export function getGoodsListApi(pageNum = 1, pageSize = 8, categoryId?: number): Promise<Result<PageVO<GoodsItem>>> {
@@ -130,3 +130,7 @@ export function getMyCollectApi():Promise<Result<GoodsItem[]>>{
   })
 }
 
+// AI图片识物
+export function aiDetectGoodsApi(imgUrlList: string[]): Promise<Result<AiGoodsDetectData>> {
+  return request.post('/goods/ai/detect', { imgUrlList })
+}

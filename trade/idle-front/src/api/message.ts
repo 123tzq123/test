@@ -1,5 +1,5 @@
 import request from '../utils/request'
-import { Result, PageVO, MessageItem, ChatSessionItem } from '../types'
+import { Result, PageVO, MessageItem, ChatSessionItem, AiChatData } from '../types'
 
 // 获取历史聊天记录
 export function getHistoryMsgApi(goodsId: number, otherId: number): Promise<Result<PageVO<MessageItem>>> {
@@ -25,4 +25,10 @@ export const getUnreadTotalApi = async (): Promise<Result<number>> => {
 
 export function saveMessageApi(data: {goodsId:number,toUserId:number,content:string}): Promise<Result<MessageItem>> {
   return request.post('/message/save', data)
+}
+
+
+// AI提问接口
+export function askAiApi(question: string): Promise<Result<AiChatData>> {
+  return request.post('/ai/chat', { question })
 }

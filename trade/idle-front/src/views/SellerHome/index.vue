@@ -13,7 +13,9 @@
           </div>
         </div>
         <!-- 联系卖家按钮 -->
-        <el-button type="primary" size="large" @click="goChat">联系卖家</el-button>
+        <!-- <el-button type="primary" size="large" @click="goChat">联系卖家</el-button> -->
+        <!-- 联系卖家按钮 -->
+        <el-button v-if="loginUserId !== sellerId" type="primary" size="large" @click="goChat">联系卖家</el-button>
       </div>
     </el-card>
 
@@ -92,17 +94,12 @@ const goChat = () => {
     ElMessage.warning("请先登录！")
     return
   }
-  // router.push({
-  //   path: '/chat',
-  //   query: {
-  //     otherId: String(sellerId)
-  //   }
-  // })
-  // 原跳转 /chat 注释，改为跳转到消息页，携带目标用户ID
   router.push({
     path: '/personal/message',
     query: {
-      targetOtherId: String(sellerId)
+      targetOtherId: String(sellerId),
+      targetOtherName: sellerInfo.value.nickname,
+      targetOtherAvatar: sellerInfo.value.avatar
     }
   })
 }

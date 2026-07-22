@@ -5,17 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b54bb86-dd60-412b-a71d-ce8a983be624" name="Changes" comment="test02">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/trade/vo/ChatSessionVO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trade/config/DashScopeConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trade/config/DeepSeekConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trade/controller/AiChatController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/trade/vo/AiGoodsDetectVO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/api/goods.ts" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/api/goods.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/idle-front/src/api/message.ts" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/api/message.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/idle-front/src/components/NavBar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/components/NavBar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/idle-front/src/router/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/router/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/idle-front/src/types/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/types/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/idle-front/src/views/GoodsDetail/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/GoodsDetail/index.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/idle-front/src/views/Personal/Chat.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Personal/Chat.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Personal/MessageList.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Personal/MessageList.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Personal/Order.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Personal/Order.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Personal/SellerOrder.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Personal/SellerOrder.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/idle-front/src/views/Publish/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/Publish/index.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/idle-front/src/views/SellerHome/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/idle-front/src/views/SellerHome/index.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/controller/MessageController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/controller/MessageController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/service/GoodsMessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/service/GoodsMessageService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/GoodsMessageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/service/impl/GoodsMessageServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/IdleTradeApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/IdleTradeApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/controller/GoodsController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/controller/GoodsController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,29 +80,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.App.executor&quot;: &quot;Run&quot;,
-    &quot;Application.IdleTradeApplication (1).executor&quot;: &quot;Run&quot;,
-    &quot;Application.IdleTradeApplication.executor&quot;: &quot;Run&quot;,
-    &quot;JUnit.AppTest.executor&quot;: &quot;Run&quot;,
-    &quot;Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/note/项目总览/test/test/trade&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.annotationProcessors&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.App.executor": "Run",
+    "Application.IdleTradeApplication (1).executor": "Run",
+    "Application.IdleTradeApplication.executor": "Run",
+    "JUnit.AppTest.executor": "Run",
+    "Maven. [org.apache.maven.plugins:maven-archetype-plugin:RELEASE:generate].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/note/项目总览/test/test/trade",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors",
+    "to.speed.mode.migration.done": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Application.IdleTradeApplication (1)">
     <configuration name="IdleTradeApplication (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.trade.IdleTradeApplication" />

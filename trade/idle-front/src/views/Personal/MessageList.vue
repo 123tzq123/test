@@ -35,6 +35,7 @@
     :key="selectSession.otherId"
     :other-id="selectSession.otherId" 
     :goods-id="0" 
+    @send-success="loadSessionList"
   />
 </div>
 <div class="chat-empty" v-else>
@@ -45,16 +46,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 import NavBar from '../../components/NavBar.vue'
 import ChatVue from './Chat.vue'
 import { getChatSessionListApi } from '../../api/message'
 import { ChatSessionItem } from '../../types'
 import { useRoute } from 'vue-router'
 
-// 会话列表
+// 会话列表（后端只返回有聊天记录的用户）
 const sessionList = ref<ChatSessionItem[]>([])
-// 当前选中会话
+// 当前选中会话（可以是后端真实会话 / 前端临时虚拟会话）
 const selectSession = ref<ChatSessionItem | null>(null)
 const route = useRoute()
 
@@ -67,62 +68,60 @@ const formatTime = (timeStr: string) => {
   return `${h}:${m}`
 }
 
-// 存储需要自动打开的目标用户ID
-const targetOpenOtherId = ref<number | null>(null)
-
+// 加载后端会话列表
 const loadSessionList = async () => {
   const resp = await getChatSessionListApi()
-  console.log('完整后端返回体：', resp)
   if (resp.code === 200) {
     sessionList.value = resp.data
-    console.log('赋值后的会话列表长度：', sessionList.value.length, sessionList.value)
-
-    // 列表加载完成后，如果存在待打开的目标用户，自动选中会话
-    if (targetOpenOtherId.value) {
-      const targetSession = sessionList.value.find(item => item.otherId === targetOpenOtherId.value)
-      if (targetSession) {
-        selectSession.value = {
-          ...targetSession,
-          goodsId: 0
-        }
-        // 清空标记，避免重复触发
-        targetOpenOtherId.value = null
-      }
-    }
-    // 标记未读数量变更，让NavBar实时刷新红点
+    // 列表加载完成后处理路由目标用户
+    await handleRouteTargetUser()
     localStorage.setItem('refreshUnreadFlag', String(Date.now()))
   }
 }
 
-// 打开聊天会话，强制goodsId=0，查询该用户全部聊天
+// 处理路由传入的目标聊天用户【核心新增方法】
+const handleRouteTargetUser = async () => {
+  const targetId = route.query.targetOtherId
+  const targetName = route.query.targetOtherName
+  const targetAvatar = route.query.targetOtherAvatar
+  if (!targetId) return
+
+  const targetOtherId = Number(targetId)
+  // 1. 在后端会话列表查找是否存在该用户
+  const existSession = sessionList.value.find(item => item.otherId === targetOtherId)
+
+  if (existSession) {
+    // 已有聊天记录，直接打开真实会话
+    selectSession.value = { ...existSession, goodsId: 0 }
+  } else {
+    // ====== 没有聊天记录，构造【临时虚拟会话】打开右侧聊天窗口 ======
+    selectSession.value = {
+      otherId: targetOtherId,
+      otherName: String(targetName || '未知用户'),
+      otherAvatar: String(targetAvatar || ''),
+      lastMsg: '',
+      lastMsgTime: '',
+      unreadNum: 0,
+      goodsId: 0
+    }
+  }
+}
+
+// 点击左侧已有会话
 const openChat = async (item: ChatSessionItem) => {
   selectSession.value = {
     ...item,
     goodsId: 0
   }
-  // 关键：打开会话后重新拉取会话列表，后端已标记已读，列表unreadNum清零
   await loadSessionList()
 }
 
-// 监听路由参数：保存需要打开的用户ID，等待列表加载完成后再匹配
+// 监听路由参数变化
 watch(
-  () => route.query.targetOtherId,
-  (targetId) => {
-    if (!targetId) {
-      targetOpenOtherId.value = null
-      return
-    }
-    targetOpenOtherId.value = Number(targetId)
-    // 如果列表已经加载完毕，直接匹配
+  () => route.query,
+  async () => {
     if (sessionList.value.length > 0) {
-      const targetSession = sessionList.value.find(item => item.otherId === targetOpenOtherId.value)
-      if (targetSession) {
-        selectSession.value = {
-          ...targetSession,
-          goodsId: 0
-        }
-        targetOpenOtherId.value = null
-      }
+      await handleRouteTargetUser()
     }
   },
   { immediate: true }

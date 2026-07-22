@@ -1,11 +1,6 @@
 import request from '../utils/request'
 import { Result, LoginData, UserLoginDTO } from '../types'
 
-// interface LoginForm {
-//   username: string
-//   password: string
-// }
-
 //登录接口
 export function loginApi(data: UserLoginDTO): Promise<Result<LoginData>> {
   return request({

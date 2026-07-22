@@ -77,7 +77,8 @@ const props = defineProps<{
   otherId?: number
   goodsId?: number
 }>()
-const emit = defineEmits(['close'])
+//const emit = defineEmits(['close'])
+const emit = defineEmits(['close','send-success'])
 const route = useRoute()
 
 // 优先级：props > 路由query，兼容两种打开方式
@@ -183,6 +184,8 @@ const sendMsg = async () => {
   const newMsg = res.data
   addMsgNoRepeat(newMsg)
   content.value = ''
+  // 发送成功通知父组件刷新会话列表
+  emit('send-success')
 }
   } catch {
     ElMessage.error('发送失败，请重试')

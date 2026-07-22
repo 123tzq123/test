@@ -32,6 +32,10 @@
             </template>
           </el-upload>
           <div class="tip-text">最多上传5张图片，第一张为商品封面</div>
+          <!-- ===== 新增AI识物按钮 ===== -->
+          <el-button type="success" class="ai-detect-btn" @click="openAiDetectDialog">
+            🤖 AI识物，图片自动填充商品信息
+          </el-button>
         </el-form-item>
         <el-form-item label="商品描述">
           <el-input v-model="publishForm.content" type="textarea" rows="4" size="large" placeholder="描述商品成色、使用时长、配件等信息"></el-input>
@@ -43,17 +47,43 @@
         </el-form-item>
       </el-form>
     </el-card>
+
+    <!-- ========== AI识物弹窗 ========== -->
+    <el-dialog v-model="aiDetectVisible" @close="handleAiDialogClose"  title="AI识物（最多5张图片）" width="540px">
+      <el-upload
+        ref="aiUploadRef"
+        list-type="picture-card"
+        :limit="5"
+        :file-list="aiFileList"
+        :http-request="aiUploadImg"
+        multiple
+      >
+        <template #default>
+          <el-icon><Plus /></el-icon>
+        </template>
+      </el-upload>
+      <div class="tip-text">上传商品照片，AI自动识别并填充表单信息</div>
+      <template #footer>
+        <el-button @click="aiDetectVisible = false">取消</el-button>
+        <el-button type="primary" @click="startAiDetect" :loading="aiDetectLoading">开始识别</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Plus, Delete } from '@element-plus/icons-vue'
+import { Plus } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import NavBar from '../../components/NavBar.vue'
-import { publishGoodsApi, uploadImgApi } from '../../api/goods'
+import { publishGoodsApi, uploadImgApi, aiDetectGoodsApi } from '../../api/goods'
 import { GoodsPublishDTO } from '../../types'
 import { useRouter } from 'vue-router'
+
+const handleAiDialogClose = () => {
+  aiFileList.value = []
+  aiImgUrlList.value = []
+}
 
 const router = useRouter()
 const publishForm = ref<GoodsPublishDTO>({
@@ -69,7 +99,14 @@ const imgList = ref<string[]>([])
 // el-upload 内置文件列表
 const fileList = ref<any[]>([])
 
-// 自定义上传接口
+// ===================== AI识物相关变量 =====================
+const aiDetectVisible = ref(false)
+const aiFileList = ref<any[]>([])
+// AI上传成功后的图片url集合
+const aiImgUrlList = ref<string[]>([])
+const aiDetectLoading = ref(false)
+
+// 自定义上传接口（原有商品图片上传）
 const uploadImg = async (options: { file: File }) => {
   const res = await uploadImgApi(options.file)
   if (res.code === 200) {
@@ -81,6 +118,68 @@ const uploadImg = async (options: { file: File }) => {
       url: url
     })
     ElMessage.success('图片上传成功')
+  }
+}
+
+// AI弹窗内图片上传
+const aiUploadImg = async (options: { file: File, onSuccess: Function, onError: Function }) => {
+  const res = await uploadImgApi(options.file)
+  if (res.code === 200) {
+    const url = res.data
+    aiImgUrlList.value.push(url)
+    options.onSuccess()
+  } else {
+    ElMessage.error("图片上传失败！")
+    options.onError()
+  }
+}
+
+// 打开AI弹窗，清空缓存
+const openAiDetectDialog = () => {
+  aiDetectVisible.value = true
+  aiFileList.value = []
+  aiImgUrlList.value = []
+}
+const startAiDetect = async () => {
+  console.log("aiImageUrlList：", aiImgUrlList.value)
+  if (aiImgUrlList.value.length === 0) {
+    ElMessage.warning("请先上传商品图片！")
+    return
+  }
+  aiDetectLoading.value = true
+  try {
+    const res = await aiDetectGoodsApi(aiImgUrlList.value)
+    if (res.code === 200) {
+      const info = res.data
+      publishForm.value.title = info.title
+      publishForm.value.price = info.price
+      publishForm.value.categoryId = info.categoryId
+      publishForm.value.content = info.content
+
+      const newFileList = [...fileList.value]
+      const newImgList = [...imgList.value]
+
+      // 只添加本次弹窗刚刚上传的图片
+      aiImgUrlList.value.forEach(url => {
+        if (!newImgList.includes(url)) {
+          newImgList.push(url)
+          newFileList.push({
+            url: url,
+            uid: Date.now() + Math.random(),
+            status: 'success'
+          })
+        }
+      })
+      fileList.value = newFileList
+      imgList.value = newImgList
+
+      ElMessage.success("AI识别完成，信息已自动填充！")
+      aiDetectVisible.value = false
+    }
+  } catch (err) {
+    ElMessage.error("AI识别失败，请更换图片重试！")
+  } finally {
+    aiDetectLoading.value = false
   }
 }
 
@@ -146,5 +245,8 @@ const submit = async () => {
 .submit-btn {
   width: 240px;
   border-radius: 8px;
+}
+.ai-detect-btn {
+  margin-top: 12px;
 }
 </style>

@@ -154,3 +154,23 @@ export interface ChatSessionItem {
   unreadNum: number; // 当前会话未读数量
   goodsId: number; // 关联商品ID，0=无商品聊天
 }
+
+// ===================== AI助手新增类型 =====================
+// AI对话单条消息
+export interface AiMsg {
+  type: 'user' | 'ai'
+  content: string
+}
+
+// AI问答接口返回data结构
+export interface AiChatData {
+  answer: string
+}
+
+// AI识物返回结构
+export interface AiGoodsDetectData {
+  title: string
+  categoryId: number
+  price: number
+  content: string
+}

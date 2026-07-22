@@ -57,7 +57,6 @@ import { registerApi } from '../../api/user'
 import { ElMessage, ElForm, FormItemRule } from 'element-plus'
 
 const router = useRouter()
-// 移除nickname字段
 const regForm = ref({
   username: '',
   password: '',
