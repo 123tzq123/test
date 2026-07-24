@@ -1,0 +1,132 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "闲置优品"
+			}
+		},
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/register/register",
+			"style": {
+				"navigationBarTitleText": "注册"
+			}
+		},
+		{
+			"path": "pages/goodsDetail/goodsDetail",
+			"style": {
+				"navigationBarTitleText": "商品详情"
+			}
+		},
+		{
+			"path": "pages/publish/publish",
+			"style": {
+				"navigationBarTitleText": "发布商品"
+			}
+		},
+		{
+			"path": "pages/personal/index",
+			"style": {
+				"navigationBarTitleText": "我的发布"
+			}
+		},
+		{
+			"path": "pages/personal/home",
+			"style": {
+				"navigationBarTitleText": "个人中心"
+			}
+		},
+		{
+			"path": "pages/personal/myCollect",
+			"style": {
+				"navigationBarTitleText": "我的收藏"
+			}
+		},
+		{
+			"path": "pages/personal/order",
+			"style": {
+				"navigationBarTitleText": "我的订单"
+			}
+		},
+		{
+			"path": "pages/personal/sellOrder",
+			"style": {
+				"navigationBarTitleText": "我卖出的订单"
+			}
+		},
+		{
+			"path": "pages/personal/myCreateComment",
+			"style": {
+				"navigationBarTitleText": "我发布的评价"
+			}
+		},
+		{
+			"path": "pages/personal/myReceiveComment",
+			"style": {
+				"navigationBarTitleText": "收到的评价"
+			}
+		},
+		{
+			"path": "pages/personal/messageList",
+			"style": {
+				"navigationBarTitleText": "消息列表"
+			}
+		},
+		{
+		  "path": "pages/personal/Chat",
+		  "style": {
+		    "navigationBarTitleText": "聊天",
+		    "navigationBarBackgroundColor": "#409EFF",
+		    "navigationBarTextStyle": "white",
+		    "softinputMode": "adjustResize"
+		  }
+		},
+		{
+			"path": "pages/SellerHome/sellerHome",
+			"style": {
+				"navigationBarTitleText": "卖家中心"
+			}
+		},
+		{
+		  "path": "pages/personal/profileEdit",
+		  "style": {
+		    "navigationBarTitleText": "个人信息设置",
+		    "navigationBarBackgroundColor": "#409EFF",
+		    "navigationBarTextStyle": "white"
+		  }
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "white",
+		"navigationBarTitleText": "闲置优品",
+		"navigationBarBackgroundColor": "#409EFF",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#666666",
+		"selectedColor": "#409EFF",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/publish/publish",
+				"text": "发布"
+			},
+			{
+				"pagePath": "pages/personal/home",
+				"text": "我的"
+			}
+		]
+	},
+	"uniIdRouter": {}
+}

@@ -143,7 +143,7 @@ public class GoodsMessageServiceImpl extends ServiceImpl<GoodsMessageMapper, Goo
             ChatSessionVO vo = new ChatSessionVO();
             vo.setOtherId(otherId);
             vo.setOtherAvatar(user.getAvatar());
-            vo.setOtherName(user.getUsername());
+            vo.setOtherName(user.getNickname());
             vo.setLastMsg(lastMsg.getContent());
             vo.setLastMsgTime(lastMsg.getCreateTime().format(formatter));
             vo.setUnreadNum(unread);
