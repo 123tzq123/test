@@ -5,7 +5,7 @@
         <text class="ai-title">🤖 AI问答助手</text>
         <text class="close-btn" @click="emit('update:showAiDialog', false)">×</text>
       </view>
-      <!-- 关键：绑定 scroll-top -->
+      <!-- 聊天消息区域 -->
       <scroll-view class="ai-msg-box" scroll-y :scroll-top="scrollTopVal">
         <view
           class="ai-msg-item"
@@ -19,9 +19,17 @@
         </view>
         <view v-if="aiLoading" class="loading-text">AI思考中...</view>
       </scroll-view>
+      <!-- 底部输入区域 固定高度，不会被挤压消失 -->
       <view class="ai-input-area">
-        <uni-input v-model="aiInputText" placeholder="输入你的问题" @confirm="sendAi" />
-        <button type="primary" @click="sendAi" :loading="aiLoading">发送</button>
+        <input 
+          class="chat-input"
+          :value="aiInputText"
+          @input="(e)=>aiInputText = e.target.value"
+          placeholder="输入你的问题"
+          confirm-type="send"
+          @confirm="sendAi"
+        />
+        <view class="send-btn" @click="sendAi" :class="{disabled:aiLoading}">发送</view>
       </view>
     </view>
   </view>
@@ -32,24 +40,20 @@ import { ref, nextTick, watch } from 'vue'
 import { askAiApi } from '../api/message'
 import type { AiMsg } from '../types'
 
-// 接收props，解决【找不到props】
 const props = defineProps<{
   showAiDialog: boolean
 }>()
 const emit = defineEmits(['update:showAiDialog'])
 
-// 滚动控制变量（核心方案，替代ref调用滚动方法）
 const scrollTopVal = ref(0)
 const aiInputText = ref('')
 const aiLoading = ref(false)
 const aiMsgList = ref<AiMsg[]>([])
 
-// 滚动到底部通用方法
 const scrollToBottom = () => {
   scrollTopVal.value = 999999
 }
 
-// 打开弹窗初始化欢迎语
 const openAi = () => {
   const existWelcome = aiMsgList.value.some(m => m.content.includes('闲置优品二手交易平台AI助手'))
   if (!existWelcome) {
@@ -63,14 +67,13 @@ const openAi = () => {
   })
 }
 
-// 监听弹窗打开，解决watch报错
 watch(() => props.showAiDialog, (val) => {
   if (val) openAi()
 })
 
 const sendAi = async () => {
   const text = aiInputText.value.trim()
-  if (!text) return
+  if (!text || aiLoading.value) return
   aiMsgList.value.push({ type: 'user', content: text })
   aiInputText.value = ''
   aiLoading.value = true
@@ -99,9 +102,10 @@ const sendAi = async () => {
   height: 100vh;
   background: rgba(0,0,0,0.4);
   z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:auto;
 }
 .ai-dialog {
   width: 90vw;
@@ -111,6 +115,8 @@ const sendAi = async () => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  pointer-events:auto;
+  box-sizing: border-box;
 }
 .ai-header {
   height: 112rpx;
@@ -119,6 +125,8 @@ const sendAi = async () => {
   align-items: center;
   justify-content: space-between;
   border-bottom: 1rpx solid #eee;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 .ai-title {
   font-size: 36rpx;
@@ -129,8 +137,11 @@ const sendAi = async () => {
 }
 .ai-msg-box {
   flex: 1;
-  padding: 32rpx;
+  /* 重点修改：上下32rpx，左右增加40rpx安全边距，防止气泡贴边裁切 */
+  padding: 32rpx 40rpx;
   background: #f8f9fa;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 .ai-msg-item {
   margin: 24rpx 0;
@@ -147,6 +158,7 @@ const sendAi = async () => {
   padding: 20rpx 28rpx;
   border-radius: 20rpx;
   font-size: 28rpx;
+  box-sizing: border-box;
 }
 .ai .msg-bubble {
   background: #fff;
@@ -161,11 +173,37 @@ const sendAi = async () => {
   color: #999;
   padding: 10rpx;
 }
+/* 输入区域固定高度，禁止压缩 */
 .ai-input-area {
+  flex-shrink: 0;
+  height: 120rpx;
   padding: 24rpx 32rpx;
   display: flex;
   gap: 24rpx;
   align-items: center;
   border-top: 1rpx solid #eee;
+  box-sizing: border-box;
+}
+.chat-input {
+  flex: 1;
+  height: 72rpx;
+  border: 1rpx solid #ddd;
+  border-radius: 12rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+.send-btn {
+  width: 120rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  text-align: center;
+  background: #409EFF;
+  color: #fff;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+}
+.send-btn.disabled {
+  opacity: 0.6;
 }
 </style>

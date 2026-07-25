@@ -46,28 +46,23 @@ public class AiChatController {
     private String callDeepSeekApi(String question) {
         Map<String, Object> body = new HashMap<>();
         body.put("model", deepSeekConfig.getModel());
-
         List<Map<String, String>> messages = new ArrayList<>();
         // 系统提示词
         Map<String,String> sysMsg = new HashMap<>();
         sysMsg.put("role", "system");
         sysMsg.put("content", "你是闲置优品二手交易平台AI助手，仅解答平台发布商品、订单、收藏、评价、聊天交易相关问题，回答简洁简短。");
         messages.add(sysMsg);
-
         // 用户提问
         Map<String,String> userMsg = new HashMap<>();
         userMsg.put("role", "user");
         userMsg.put("content", question);
         messages.add(userMsg);
-
         body.put("messages", messages);
         body.put("temperature", 0.7);
-
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + deepSeekConfig.getApiKey());
         HttpEntity<String> entity = new HttpEntity<>(JSON.toJSONString(body), headers);
-
         try {
             ResponseEntity<String> resp = restTemplate.postForEntity(deepSeekConfig.getApiUrl(), entity, String.class);
             if (resp.getStatusCode().is2xxSuccessful()) {

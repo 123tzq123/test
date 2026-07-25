@@ -40,7 +40,6 @@
         <view class="add-img" @click="chooseUpload">+</view>
       </view>
       <text class="tip">最多5张，第一张为封面</text>
-     <!-- <button type="success" class="ai-btn" @click="aiDetectVisible = true">🤖 AI识物自动填充</button> -->
     </view>
 
     <!-- 商品描述 -->
@@ -50,7 +49,7 @@
     </view>
 
     <view class="form-item">
-      <button type="primary" class="submit-btn" @click="submit">发布商品</button>
+      <view class="submit-btn" @click="submit">发布商品</view>
     </view>
   </view>
 
@@ -66,15 +65,16 @@
       </view>
       <text class="tip">上传商品图片AI自动生成信息</text>
       <view class="popup-btn-row">
-        <button @click="aiDetectVisible = false">取消</button>
-        <button type="primary" :loading="aiDetectLoading" @click="startAiDetect">开始识别</button>
+        <view class="pop-btn cancel" @click="aiDetectVisible = false">取消</view>
+        <view class="pop-btn confirm" :class="{loading:aiDetectLoading}" @click="startAiDetect">开始识别</view>
       </view>
     </view>
   </uni-popup>
 
-  <!-- 全局AI弹窗组件 -->
-  <AiChatPopup v-model:show="aiPopupShow" />
-  <button class="float-ai" @click="aiPopupShow = true">🤖 AI小助手</button>
+  <!-- 全局AI弹窗组件 修正双向绑定 -->
+  <AiChatPopup v-model:showAiDialog="aiPopupShow" />
+  <!-- 替换原生button为view悬浮按钮 -->
+  <view class="float-ai" @click="aiPopupShow = true">🤖小助手</view>
 </view>
 </template>
 
@@ -88,8 +88,7 @@ import AiChatPopup from '../../src/components/AiChatPopup.vue'
 // AI弹窗全局入口
 const aiPopupShow = ref(false)
 
-// 分类配置 【和你原有option一一对应】
-// 先把分类数组抽成常量，不再使用ref包裹
+// 分类配置
 const categoryOptions = [
   '电子产品',
   '图书教材',
@@ -99,7 +98,6 @@ const categoryOptions = [
 ]
 const categoryList = ref(categoryOptions)
 const categoryIndex = ref(0)
-// 新增显示变量，独立控制视图渲染
 const showCategoryName = ref(categoryOptions[0])
 
 // 表单
@@ -119,7 +117,6 @@ const onCategoryChange = (e: any) => {
   console.log('选中下标：', idx)
   categoryIndex.value = idx
   publishForm.value.categoryId = Number(idx) + 1
-  // 直接从常量数组取值，不再依赖ref包装的categoryList
   showCategoryName.value = categoryOptions[idx]
   console.log('更新后categoryIndex：', categoryIndex.value)
   console.log('分类名称：', showCategoryName.value)
@@ -180,9 +177,7 @@ const startAiDetect = async () => {
       publishForm.value.price = data.price
       publishForm.value.categoryId = data.categoryId
       publishForm.value.content = data.content
-      // 自动同步分类下标
       categoryIndex.value = publishForm.value.categoryId - 1
-      // 合并图片
       aiImgUrlList.value.forEach((url) => {
         if (!imgList.value.includes(url)) {
           imgList.value.push(url)
@@ -222,7 +217,6 @@ onLoad(()=>{
     uni.navigateTo({url:"/pages/login/login"})
   }
 })
-
 </script>
 
 <style scoped>
@@ -230,6 +224,7 @@ onLoad(()=>{
   padding: 32rpx;
   background: #f5f7fa;
   min-height: 100vh;
+  box-sizing: border-box;
 }
 .page-title {
   font-size: 44rpx;
@@ -243,6 +238,7 @@ onLoad(()=>{
   background: #fff;
   border-radius: 20rpx;
   padding: 40rpx;
+  box-sizing: border-box;
 }
 .form-item {
   margin-bottom: 36rpx;
@@ -304,21 +300,13 @@ onLoad(()=>{
   display: block;
   margin-top: 12rpx;
 }
-.ai-btn {
-  margin-top: 24rpx;
-  background: #67c23a;
-  color: #fff;
-  border: none;
-  padding: 16rpx 32rpx;
-  border-radius: 12rpx;
-  font-size: 32rpx;
-}
 .submit-btn {
   width: 100%;
   height: 80rpx;
+  line-height: 80rpx;
+  text-align: center;
   background: #409EFF;
   color: #fff;
-  border: none;
   border-radius: 16rpx;
   font-size: 36rpx;
 }
@@ -327,6 +315,7 @@ onLoad(()=>{
   background: #fff;
   border-radius: 24rpx;
   padding: 40rpx;
+  box-sizing: border-box;
 }
 .popup-title {
   font-size: 40rpx;
@@ -339,6 +328,26 @@ onLoad(()=>{
   gap: 30rpx;
   margin-top: 40rpx;
 }
+.pop-btn {
+  flex: 1;
+  height: 76rpx;
+  line-height:76rpx;
+  text-align:center;
+  border-radius:12rpx;
+  font-size:30rpx;
+}
+.pop-btn.cancel {
+  background:#eee;
+  color:#333;
+}
+.pop-btn.confirm {
+  background:#409EFF;
+  color:#fff;
+}
+.pop-btn.loading {
+  opacity:0.7;
+}
+/* 修复悬浮按钮 提高层级，替换view */
 .float-ai {
   position: fixed;
   right: 40rpx;
@@ -348,21 +357,12 @@ onLoad(()=>{
   border-radius: 50%;
   background: #409EFF;
   color: #fff;
-  font-size: 40rpx;
-  border: none;
-}
-uni-input {
-  border: 1rpx solid #eeeeee;
-  border-radius: 10rpx;
-  padding: 24rpx 20rpx;
-  margin-top: 10rpx;
-}
-uni-textarea {
-  border: 1rpx solid #eeeeee;
-  border-radius: 10rpx;
-  padding: 20rpx;
-  margin-top: 10rpx;
-  min-height: 140rpx;
+  font-size: 25rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  pointer-events: auto;
 }
 .input-native{
   width: 100%;

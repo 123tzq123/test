@@ -5,14 +5,30 @@
 
       <view class="form-item">
         <text class="label">用户名</text>
-        <input class="input-native" v-model="loginForm.username" placeholder="请输入用户名" />
+        <input 
+          class="input-native" 
+          :value="loginForm.username"
+          @input="(e) => loginForm.username = e.target.value"
+          placeholder="请输入用户名"
+          confirm-type="next"
+          cursor-spacing="20"
+        />
       </view>
       <view class="form-item">
         <text class="label">密码</text>
-        <input class="input-native" v-model="loginForm.password" password placeholder="请输入密码" />
+        <input 
+          class="input-native" 
+          :value="loginForm.password"
+          @input="(e) => loginForm.password = e.target.value"
+          password 
+          placeholder="请输入密码"
+          confirm-type="send"
+          @confirm="handleLogin"
+          cursor-spacing="20"
+        />
       </view>
       <view class="form-item">
-        <button type="primary" class="login-btn" @click="handleLogin">登录</button>
+        <view class="login-btn" @click="handleLogin">登录</view>
       </view>
 
       <view class="tip">
@@ -69,6 +85,7 @@ const goRegister = () => {
 .login-page {
   width: 100%;
   min-height: 100vh;
+  box-sizing: border-box;
   background: #f5f7fa;
   display: flex;
   align-items: center;
@@ -81,6 +98,8 @@ const goRegister = () => {
   background: #fff;
   border-radius: 24rpx;
   padding: 60rpx 40rpx;
+  box-sizing: border-box;
+  pointer-events: auto;
 }
 .title {
   display: block;
@@ -104,10 +123,15 @@ const goRegister = () => {
   border-radius: 10rpx;
   padding: 24rpx 20rpx;
   font-size: 30rpx;
+  pointer-events: auto;
+  background-color: #fff;
 }
+/* 使用view替代原生button，解决点击失效+布局兼容 */
 .login-btn {
   width: 100%;
   height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
   background: #409EFF;
   color: #fff;
   border-radius: 16rpx;

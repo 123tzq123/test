@@ -5,18 +5,42 @@
 
     <view class="form-item">
       <text class="label">用户名</text>
-      <input class="input-native" v-model="regForm.username" placeholder="设置用户名" />
+      <input 
+        class="input-native" 
+        :value="regForm.username"
+        @input="(e) => regForm.username = e.target.value"
+        placeholder="设置用户名"
+        confirm-type="next"
+        cursor-spacing="20"
+      />
     </view>
     <view class="form-item">
       <text class="label">密码</text>
-      <input class="input-native" v-model="regForm.password" password placeholder="设置登录密码" />
+      <input 
+        class="input-native" 
+        :value="regForm.password"
+        @input="(e) => regForm.password = e.target.value"
+        password 
+        placeholder="设置登录密码"
+        confirm-type="next"
+        cursor-spacing="20"
+      />
     </view>
     <view class="form-item">
       <text class="label">确认密码</text>
-      <input class="input-native" v-model="regForm.confirmPwd" password placeholder="再次输入密码" />
+      <input 
+        class="input-native" 
+        :value="regForm.confirmPwd"
+        @input="(e) => regForm.confirmPwd = e.target.value"
+        password 
+        placeholder="再次输入密码"
+        confirm-type="done"
+        cursor-spacing="20"
+        @confirm="handleRegister"
+      />
     </view>
     <view class="form-item">
-      <button type="primary" class="reg-btn" @click="handleRegister">完成注册</button>
+      <view class="reg-btn" @click="handleRegister">完成注册</view>
     </view>
 
     <view class="tip">
@@ -76,23 +100,25 @@ const handleRegister = async () => {
 .register-wrap {
   width: 100%;
   min-height: 100vh;
+  box-sizing: border-box;
   background: #f5f7fa;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80rpx;
+  padding: 40rpx;
 }
 .register-card {
   width: 100%;
   max-width: 600rpx;
   background: #fff;
   border-radius: 24rpx;
-  padding: 100rpx 60rpx;
+  padding: 60rpx 40rpx;
+  box-sizing: border-box;
 }
 .title {
   font-size: 48rpx;
   text-align: center;
-  margin-bottom: 80rpx;
+  margin-bottom: 60rpx;
   display: block;
 }
 .form-item {
@@ -110,23 +136,27 @@ const handleRegister = async () => {
   border-radius: 10rpx;
   padding: 24rpx 20rpx;
   font-size: 30rpx;
+  background: #fff;
 }
+/* view模拟按钮，替代原生button */
 .reg-btn {
   width: 100%;
   height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
   background: #409EFF;
   color: #fff;
-  border: none;
   border-radius: 16rpx;
   font-size: 32rpx;
 }
 .tip {
-  margin-top: 60rpx;
+  margin-top: 40rpx;
   text-align: center;
   font-size: 28rpx;
   color: #606266;
 }
 .link {
   color: #409EFF;
+  margin-left: 12rpx;
 }
 </style>
