@@ -50,7 +50,7 @@
 <script setup lang="ts">
 import { ref, nextTick } from 'vue'
 import { onLoad, onUnload } from '@dcloudio/uni-app'
-import { sendSocketMsg } from '../../src/utils/socket'
+import { initSocket, sendSocketMsg } from '../../src/utils/socket'
 import { getHistoryMsgApi } from '../../src/api/message'
 import type { MessageItem } from '../../src/types'
 
@@ -148,6 +148,10 @@ onLoad(async (options) => {
     title: targetNick.value
   })
   await loadHistory()
+
+  // ===========【关键缺失代码】初始化WebSocket连接 ===========
+  const uid = uni.getStorageSync('userId') ? Number(uni.getStorageSync('userId')) : 0
+  initSocket(uid)
 
   // 注册ws监听
   socketMessageHandler = handleSocketMsg

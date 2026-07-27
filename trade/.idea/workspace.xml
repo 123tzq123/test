@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b54bb86-dd60-412b-a71d-ce8a983be624" name="Changes" comment="test02">
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/trade/controller/AiChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/trade/controller/AiChatController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../idle-Trade/pages/personal/Chat.vue" beforeDir="false" afterPath="$PROJECT_DIR$/../idle-Trade/pages/personal/Chat.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../idle-Trade/src/utils/request.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../idle-Trade/src/utils/request.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../idle-Trade/src/utils/socket.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../idle-Trade/src/utils/socket.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

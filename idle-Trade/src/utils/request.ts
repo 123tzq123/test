@@ -1,6 +1,6 @@
 // 直接写死后端地址，规避import.meta报错
-//const baseUrl = "http://10.243.160.88:8080"
-const baseUrl = "http://192.168.115.88:8080"
+const baseUrl = "http://10.243.160.88:8080"
+//const baseUrl = "http://192.168.115.88:8080"
 const request = {
   get<T = any>(url: string, params?: any): Promise<T> {
     return new Promise((resolve, reject) => {

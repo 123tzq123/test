@@ -1,4 +1,5 @@
 let socketTask: any | null = null
+//const WS_URL = "ws://192.168.115.88:8080/ws"
 const WS_URL = "ws://localhost:8080/ws"
 // 消息接收回调（原有：给消息列表页面使用）
 let onMessageCallback: ((msg: any) => void) | null = null
@@ -61,13 +62,19 @@ export function initSocket(userId: number, msgCallback?: (msg: any) => void) {
 
 // 发送消息
 export function sendSocketMsg(data: any) {
+  console.log("尝试发送ws消息，连接状态：", isWsConnected, socketTask?.readyState)
   if (!socketTask || !isWsConnected) {
     uni.showToast({ title: "连接未就绪，请稍后重试", icon: "none" })
     return
   }
-  socketTask.send({
-    data: JSON.stringify(data)
-  })
+  try {
+    socketTask.send({
+      data: JSON.stringify(data)
+    })
+  } catch (e) {
+    console.error("发送消息异常", e)
+    uni.showToast({ title: "消息发送失败", icon: "none" })
+  }
 }
 
 // 主动关闭连接
